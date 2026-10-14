@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Laporan Inventaris Barang</title>
+    <title>Laporan Data Pakaian - Rekapitulasi Stok</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Plus Jakarta Sans -->
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- html2canvas untuk Ekspor PNG HD -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- html2canvas untuk Download PNG -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script>
         tailwind.config = {
@@ -21,245 +21,237 @@
     </script>
     <style>
         body {
-            background-color: #0b0f17;
-            background-image: 
-                radial-gradient(circle at 10% 10%, rgba(99, 102, 241, 0.12) 0%, transparent 40%),
-                radial-gradient(circle at 90% 90%, rgba(168, 85, 247, 0.12) 0%, transparent 40%);
+            background-color: #f3efe9;
+            background-image: radial-gradient(at 0% 0%, rgba(220, 210, 198, 0.4) 0px, transparent 50%),
+                              radial-gradient(at 100% 100%, rgba(205, 193, 179, 0.4) 0px, transparent 50%);
             background-attachment: fixed;
-            -webkit-tap-highlight-color: transparent;
+            color: #4a4039;
         }
-        .glass-card {
-            background: rgba(18, 24, 38, 0.75);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+        .nude-card {
+            background: #faf7f2;
+            border: 1px solid #e6ded3;
+            box-shadow: 0 10px 30px -5px rgba(139, 120, 104, 0.08);
         }
         .export-mode {
-            width: 600px !important;
-            padding: 32px !important;
-            border-radius: 24px !important;
-            background: #111622 !important;
-            box-shadow: none !important;
+            width: 750px !important;
+            padding: 40px !important;
+            border-radius: 20px !important;
+            background: #faf7f2 !important;
         }
     </style>
 </head>
-<body class="text-slate-200 min-h-screen p-3 sm:p-6 md:p-10 font-sans pb-24">
+<body class="min-h-screen p-3 sm:p-6 md:p-10 font-sans pb-24">
 
-    <div class="max-w-3xl mx-auto space-y-4 sm:space-y-6">
+    <div class="max-w-3xl mx-auto space-y-6">
         
-        <!-- Header Utama -->
-        <div class="glass-card p-4 sm:p-6 rounded-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <div>
-                <span class="text-[10px] sm:text-xs font-bold tracking-wider uppercase bg-indigo-500/20 text-indigo-400 px-2.5 py-1 rounded-full border border-indigo-500/30">Laporan Digital</span>
-                <h1 class="text-lg sm:text-2xl font-extrabold text-white mt-1">Stok & Inventaris</h1>
-                <p class="text-xs text-slate-400" id="currentDate"></p>
-            </div>
+        <!-- Area Utama Laporan (Bisa didownload jadi PNG) -->
+        <div id="reportCard" class="nude-card p-5 sm:p-8 rounded-2xl sm:rounded-3xl space-y-6 relative overflow-hidden">
             
-            <!-- Tombol Aksi HP -->
-            <div class="grid grid-cols-2 gap-2 w-full sm:w-auto">
-                <button onclick="openModal('add')" class="bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all shadow-lg shadow-indigo-600/30 flex items-center justify-center gap-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
-                    Tambah
-                </button>
-                <button onclick="downloadPNG()" class="bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all shadow-lg shadow-emerald-600/30 flex items-center justify-center gap-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-                    PNG HD
-                </button>
-            </div>
-        </div>
-
-        <!-- Kartu Utama Laporan (Elemen yang di-capture ke PNG) -->
-        <div id="reportCard" class="glass-card p-4 sm:p-6 rounded-2xl space-y-4">
-            
-            <!-- Summary Header Laporan -->
-            <div class="flex justify-between items-center pb-3 border-b border-slate-800">
-                <div>
-                    <h2 class="text-sm sm:text-base font-bold text-white">Daftar Barang</h2>
-                    <p class="text-[11px] text-slate-400">Ringkasan stok barang yang tersedia</p>
+            <!-- Header Kartu -->
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-5 border-b border-[#e6ded3]">
+                <div class="flex items-center gap-3.5">
+                    <div class="w-12 h-12 rounded-2xl bg-[#eee5dc] border border-[#dcd0c0] flex items-center justify-center text-[#6b5b52] shrink-0 shadow-sm">
+                        <!-- Icon Baju -->
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2m4 0V2m0 2h4m-4 0a2 2 0 10-4 0m4 0a2 2 0 114 0"/></svg>
+                    </div>
+                    <div>
+                        <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-[#3d332c]">LAPORAN DATA PAKAIAN</h1>
+                        <p class="text-xs sm:text-sm text-[#8c7a6b] font-medium mt-0.5">Rekapitulasi Stok / Produksi</p>
+                    </div>
                 </div>
-                <div class="text-right">
-                    <span class="text-[10px] text-slate-400 uppercase tracking-wider block">Total Jenis</span>
-                    <span id="totalItems" class="text-base sm:text-lg font-black text-indigo-400">0</span>
+
+                <!-- Info Tanggal & Waktu -->
+                <div class="bg-[#eee5dc]/60 border border-[#dcd0c0]/60 px-4 py-2.5 rounded-xl text-xs space-y-1 text-[#6b5b52] w-full sm:w-auto">
+                    <div class="flex items-center gap-2">
+                        <svg class="w-3.5 h-3.5 text-[#8c7a6b]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                        <span>Tanggal : <strong id="currentDate" class="text-[#3d332c]"></strong></span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <svg class="w-3.5 h-3.5 text-[#8c7a6b]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        <span>Waktu : <strong id="currentTime" class="text-[#3d332c]"></strong></span>
+                    </div>
                 </div>
             </div>
 
-            <!-- Tampilan Kartu Responsif (HP View) -->
-            <div id="itemListHP" class="space-y-3 sm:hidden">
-                <!-- Content rendered via JS -->
-            </div>
-
-            <!-- Tampilan Tabel Modern (Tablet/Desktop View) -->
-            <div class="hidden sm:block overflow-x-auto">
+            <!-- Tabel Data Pakaian -->
+            <div class="overflow-x-auto">
                 <table class="w-full text-left text-xs sm:text-sm">
                     <thead>
-                        <tr class="text-slate-400 border-b border-slate-800/80">
-                            <th class="pb-3 font-semibold">NAMA BARANG</th>
-                            <th class="pb-3 font-semibold">WARNA</th>
-                            <th class="pb-3 font-semibold text-center">UKURAN</th>
-                            <th class="pb-3 font-semibold text-center">QTY</th>
-                            <th class="pb-3 font-semibold text-right action-col">AKSI</th>
+                        <tr class="bg-[#eee5dc]/70 text-[#6b5b52] border-b border-[#dcd0c0]">
+                            <th class="py-3.5 px-4 font-semibold rounded-l-xl">Nama Barang</th>
+                            <th class="py-3.5 px-4 font-semibold">Warna</th>
+                            <th class="py-3.5 px-4 font-semibold text-center">Ukuran</th>
+                            <th class="py-3.5 px-4 font-semibold text-center">Jumlah (Qty)</th>
+                            <th class="py-3.5 px-4 font-semibold text-right action-col">Aksi</th>
                         </tr>
                     </thead>
-                    <tbody id="itemListDesktop" class="divide-y divide-slate-800/50">
-                        <!-- Content rendered via JS -->
+                    <tbody id="inventoryList" class="divide-y divide-[#eee5dc]">
+                        <!-- Data rendered via JS -->
                     </tbody>
+                    <tfoot>
+                        <tr class="bg-[#eee5dc]/90 font-bold text-[#3d332c] border-t-2 border-[#dcd0c0]">
+                            <td class="py-3.5 px-4 rounded-bl-xl flex items-center gap-2">
+                                <span class="w-6 h-6 rounded-full bg-[#6b5b52] text-white flex items-center justify-center text-xs">$\sum$</span>
+                                Total Jenis Barang
+                            </td>
+                            <td class="py-3.5 px-4 text-[#8c7a6b]">-</td>
+                            <td class="py-3.5 px-4 text-center text-[#8c7a6b]">-</td>
+                            <td id="totalQty" class="py-3.5 px-4 text-center text-[#52796f]">0 pcs</td>
+                            <td class="py-3.5 px-4 text-right rounded-br-xl action-col text-[#8c7a6b]">-</td>
+                        </tr>
+                    </tfoot>
                 </table>
             </div>
 
-            <div class="pt-2 text-center border-t border-slate-800/50">
-                <p class="text-[10px] text-slate-500">Laporan resmi disunting via Sistem Inventaris Digital</p>
+            <div class="text-center pt-2">
+                <p class="text-[11px] text-[#9c8a7b]">--- Terima kasih telah menggunakan aplikasi ini ---</p>
             </div>
+        </div>
+
+        <!-- Tombol Kontrol Utama di Bawah -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <button onclick="downloadPNG()" class="bg-[#52796f] hover:bg-[#3f5d54] text-white p-3.5 rounded-2xl text-xs sm:text-sm font-semibold transition-all shadow-md flex items-center justify-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                Download PNG
+            </button>
+            <button onclick="openModal('add')" class="bg-[#eee5dc] hover:bg-[#dcd0c0] text-[#4a4039] border border-[#dcd0c0] p-3.5 rounded-2xl text-xs sm:text-sm font-semibold transition-all shadow-sm flex items-center justify-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                Tambah Data Barang
+            </button>
+            <button onclick="resetData()" class="bg-[#e6ded3]/50 hover:bg-[#dcd0c0]/70 text-[#6b5b52] border border-[#dcd0c0] p-3.5 rounded-2xl text-xs sm:text-sm font-semibold transition-all flex items-center justify-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                Reset Default
+            </button>
         </div>
 
     </div>
 
-    <!-- Modal Form Tambah / Edit (Optimized for Mobile) -->
-    <div id="modal" class="fixed inset-0 bg-black/80 backdrop-blur-md hidden flex items-end sm:items-center justify-center p-0 sm:p-4 z-50 transition-all">
-        <div class="glass-card w-full max-w-md p-5 sm:p-6 rounded-t-3xl sm:rounded-2xl border border-slate-700/80 space-y-4">
-            <div class="flex justify-between items-center border-b border-slate-800 pb-3">
-                <h3 id="modalTitle" class="text-base font-bold text-white">Tambah Barang Baru</h3>
-                <button onclick="closeModal()" class="text-slate-400 hover:text-white p-1">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                </button>
+    <!-- Modal Form Tambah / Edit -->
+    <div id="modal" class="fixed inset-0 bg-[#3d332c]/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+        <div class="nude-card w-full max-w-md p-6 rounded-2xl shadow-2xl relative space-y-4">
+            <div class="flex justify-between items-center border-b border-[#e6ded3] pb-3">
+                <h3 id="modalTitle" class="text-base font-bold text-[#3d332c]">Tambah Data Pakaian</h3>
+                <button onclick="closeModal()" class="text-[#8c7a6b] hover:text-[#3d332c]">✕</button>
             </div>
             
-            <form id="itemForm" onsubmit="saveItem(event)" class="space-y-3">
+            <form id="itemForm" onsubmit="saveItem(event)" class="space-y-3.5">
                 <input type="hidden" id="itemId">
                 
                 <div>
-                    <label class="block text-xs font-medium text-slate-300 mb-1">Nama Barang</label>
-                    <input type="text" id="itemName" required placeholder="Contoh: Koko Modern Adila" class="w-full bg-slate-900/90 border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-white focus:outline-none focus:border-indigo-500">
+                    <label class="block text-xs font-semibold text-[#6b5b52] mb-1">Nama Barang</label>
+                    <input type="text" id="itemName" required placeholder="Contoh: Kemeja Toyobo" class="w-full bg-white border border-[#dcd0c0] rounded-xl px-3.5 py-2 text-xs sm:text-sm text-[#3d332c] focus:outline-none focus:border-[#6b5b52]">
                 </div>
 
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-xs font-medium text-slate-300 mb-1">Warna</label>
-                        <input type="text" id="itemColor" required placeholder="Contoh: Sage Green" class="w-full bg-slate-900/90 border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-white focus:outline-none focus:border-indigo-500">
+                        <label class="block text-xs font-semibold text-[#6b5b52] mb-1">Warna</label>
+                        <input type="text" id="itemColor" required placeholder="Contoh: Mocca / Hitam" class="w-full bg-white border border-[#dcd0c0] rounded-xl px-3.5 py-2 text-xs sm:text-sm text-[#3d332c] focus:outline-none focus:border-[#6b5b52]">
                     </div>
                     <div>
-                        <label class="block text-xs font-medium text-slate-300 mb-1">Ukuran</label>
-                        <input type="text" id="itemSize" placeholder="S, M, L, XL" required class="w-full bg-slate-900/90 border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-white focus:outline-none focus:border-indigo-500">
+                        <label class="block text-xs font-semibold text-[#6b5b52] mb-1">Ukuran</label>
+                        <input type="text" id="itemSize" required placeholder="S, M, L, XL" class="w-full bg-white border border-[#dcd0c0] rounded-xl px-3.5 py-2 text-xs sm:text-sm text-[#3d332c] focus:outline-none focus:border-[#6b5b52]">
                     </div>
                 </div>
 
                 <div>
-                    <label class="block text-xs font-medium text-slate-300 mb-1">Jumlah (Qty)</label>
-                    <input type="number" id="itemQty" min="1" required placeholder="0" class="w-full bg-slate-900/90 border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-white focus:outline-none focus:border-indigo-500">
+                    <label class="block text-xs font-semibold text-[#6b5b52] mb-1">Jumlah (Qty)</label>
+                    <input type="number" id="itemQty" min="1" required placeholder="15" class="w-full bg-white border border-[#dcd0c0] rounded-xl px-3.5 py-2 text-xs sm:text-sm text-[#3d332c] focus:outline-none focus:border-[#6b5b52]">
                 </div>
 
                 <div class="flex justify-end gap-2 pt-3">
-                    <button type="button" onclick="closeModal()" class="w-1/2 sm:w-auto px-4 py-2.5 rounded-xl text-xs font-semibold text-slate-400 bg-slate-800/50 hover:bg-slate-800">Batal</button>
-                    <button type="submit" class="w-1/2 sm:w-auto bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2.5 rounded-xl text-xs font-semibold shadow-lg shadow-indigo-600/30">Simpan Data</button>
+                    <button type="button" onclick="closeModal()" class="px-4 py-2 rounded-xl text-xs font-semibold text-[#8c7a6b] hover:bg-[#eee5dc]">Batal</button>
+                    <button type="submit" class="bg-[#52796f] hover:bg-[#3f5d54] text-white px-5 py-2 rounded-xl text-xs font-semibold shadow-md">Simpan</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Script Logic dengan Penyimpanan LocalStorage & PNG Rendering -->
+    <!-- Script Logic -->
     <script>
-        // Data bawaan awal jika belum ada data di browser
-        const defaultItems = [
-            { id: 1, name: "Koko Modern Adila", color: "Hitam Sage", size: "L", qty: 25 },
-            { id: 2, name: "Gamis Premium Silk", color: "Rose Gold", size: "M", qty: 14 },
-            { id: 3, name: "Koko Slimfit Basic", color: "Putih Clean", size: "XL", qty: 30 }
+        const initialData = [
+            { id: 1, name: "Kemeja Toyobo", color: "Mocca", size: "M", qty: 15 },
+            { id: 2, name: "Kemeja Toyobo", color: "Mocca", size: "L", qty: 20 },
+            { id: 3, name: "Kemeja Toyobo", color: "Hitam", size: "XL", qty: 12 },
+            { id: 4, name: "Koko Modern", color: "Putih", size: "M", qty: 25 },
+            { id: 5, name: "Koko Modern", color: "Biru Navy", size: "L", qty: 18 },
+            { id: 6, name: "Gamis Silk", color: "Rose Gold", size: "S", qty: 10 }
         ];
 
-        // Ambil data dari LocalStorage agar tidak hilang saat direfresh/ditutup
-        let items = JSON.parse(localStorage.getItem('inventory_data')) || defaultItems;
+        let items = JSON.parse(localStorage.getItem('clothing_inventory')) || initialData;
 
-        document.getElementById('currentDate').innerText = new Date().toLocaleDateString('id-ID', {
-            weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
-        });
+        // Set Tanggal & Waktu Realtime
+        const now = new Date();
+        document.getElementById('currentDate').innerText = now.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+        document.getElementById('currentTime').innerText = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
 
-        function saveDataToStorage() {
-            localStorage.setItem('inventory_data', JSON.stringify(items));
+        function saveStorage() {
+            localStorage.setItem('clothing_inventory', JSON.stringify(items));
         }
 
-        function renderData() {
-            const containerHP = document.getElementById('itemListHP');
-            const containerDesktop = document.getElementById('itemListDesktop');
+        function getColorCode(colorName) {
+            const name = colorName.toLowerCase();
+            if (name.includes('hitam') || name.includes('black')) return '#1a1a1a';
+            if (name.includes('putih') || name.includes('white')) return '#f8f9fa';
+            if (name.includes('mocca') || name.includes('coklat') || name.includes('tan')) return '#b08968';
+            if (name.includes('navy') || name.includes('biru gelap')) return '#1d3557';
+            if (name.includes('abu') || name.includes('grey')) return '#6c757d';
+            if (name.includes('army') || name.includes(' hijau')) return '#588157';
+            if (name.includes('rose') || name.includes('gold')) return '#d4a373';
+            return '#dcd0c0'; // default neutral
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('inventoryList');
+            tbody.innerHTML = '';
             
-            containerHP.innerHTML = '';
-            containerDesktop.innerHTML = '';
+            let totalQty = 0;
 
             if (items.length === 0) {
-                const emptyState = `<p class="text-center py-6 text-xs text-slate-500">Belum ada data barang. Klik tombol Tambah.</p>`;
-                containerHP.innerHTML = emptyState;
-                containerDesktop.innerHTML = `<tr><td colspan="5">${emptyState}</td></tr>`;
-                document.getElementById('totalItems').innerText = '0';
+                tbody.innerHTML = `<tr><td colspan="5" class="py-6 text-center text-xs text-[#8c7a6b]">Belum ada data pakaian.</td></tr>`;
+                document.getElementById('totalQty').innerText = '0 pcs';
                 return;
             }
 
             items.forEach(item => {
-                // Render Tampilan HP (Card Mode)
-                const cardHP = document.createElement('div');
-                cardHP.className = 'bg-slate-900/60 border border-slate-800 rounded-xl p-3.5 flex justify-between items-center';
-                cardHP.innerHTML = `
-                    <div class="space-y-1">
-                        <h3 class="text-xs font-bold text-white">${item.name}</h3>
-                        <div class="flex items-center gap-2 text-[11px] text-slate-400">
-                            <span>Warna: <strong class="text-slate-200">${item.color}</strong></span>
-                            <span>•</span>
-                            <span class="bg-indigo-900/60 text-indigo-300 border border-indigo-700/50 px-1.5 py-0.5 rounded text-[10px] font-bold">${item.size}</span>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-3">
-                        <div class="text-right">
-                            <span class="text-[9px] text-slate-500 uppercase block">Qty</span>
-                            <span class="text-xs font-extrabold text-emerald-400">${item.qty} pcs</span>
-                        </div>
-                        <div class="flex items-center gap-1 action-col">
-                            <button onclick="editItem(${item.id})" class="text-slate-400 hover:text-indigo-400 p-1.5 bg-slate-800/80 rounded-lg">
-                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-                            </button>
-                            <button onclick="deleteItem(${item.id})" class="text-slate-400 hover:text-rose-400 p-1.5 bg-slate-800/80 rounded-lg">
-                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                            </button>
-                        </div>
-                    </div>
-                `;
-                containerHP.appendChild(cardHP);
+                totalQty += parseInt(item.qty);
+                const hexColor = getColorCode(item.color);
+                const isWhite = hexColor === '#f8f9fa';
 
-                // Render Tampilan Desktop (Table Mode)
                 const tr = document.createElement('tr');
-                tr.className = 'hover:bg-slate-800/30 transition-colors';
+                tr.className = 'hover:bg-[#eee5dc]/40 transition-colors';
                 tr.innerHTML = `
-                    <td class="py-3 font-semibold text-white">${item.name}</td>
-                    <td class="py-3 text-slate-300">${item.color}</td>
-                    <td class="py-3 text-center"><span class="bg-indigo-900/60 text-indigo-300 border border-indigo-700/50 px-2 py-0.5 rounded text-[10px] font-bold">${item.size}</span></td>
-                    <td class="py-3 text-center font-bold text-emerald-400">${item.qty}</td>
-                    <td class="py-3 text-right action-col">
+                    <td class="py-3 px-4 font-semibold text-[#3d332c]">${item.name}</td>
+                    <td class="py-3 px-4 flex items-center gap-2.5 text-[#5c4f44]">
+                        <span class="w-3.5 h-3.5 rounded-full inline-block shadow-sm shrink-0 ${isWhite ? 'border border-[#dcd0c0]' : ''}" style="background-color: ${hexColor};"></span>
+                        <span>${item.color}</span>
+                    </td>
+                    <td class="py-3 px-4 text-center font-medium text-[#5c4f44]">${item.size}</td>
+                    <td class="py-3 px-4 text-center font-bold text-[#52796f]">${item.qty} pcs</td>
+                    <td class="py-3 px-4 text-right action-col">
                         <div class="flex items-center justify-end gap-1.5">
-                            <button onclick="editItem(${item.id})" class="text-slate-400 hover:text-indigo-400 p-1">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-                            </button>
-                            <button onclick="deleteItem(${item.id})" class="text-slate-400 hover:text-rose-400 p-1">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                            </button>
+                            <button onclick="editItem(${item.id})" class="text-[#8c7a6b] hover:text-[#52796f] p-1">✏️</button>
+                            <button onclick="deleteItem(${item.id})" class="text-[#8c7a6b] hover:text-rose-600 p-1">🗑️</button>
                         </div>
                     </td>
                 `;
-                containerDesktop.appendChild(tr);
+                tbody.appendChild(tr);
             });
 
-            document.getElementById('totalItems').innerText = items.length;
+            document.getElementById('totalQty').innerText = totalQty + ' pcs';
         }
 
         function openModal(mode, id = null) {
-            const modal = document.getElementById('modal');
-            const title = document.getElementById('modalTitle');
-            modal.classList.remove('hidden');
-
+            document.getElementById('modal').classList.remove('hidden');
             if (mode === 'edit' && id) {
+                document.getElementById('modalTitle').innerText = 'Edit Data Pakaian';
                 const item = items.find(i => i.id === id);
-                title.innerText = 'Edit Barang';
                 document.getElementById('itemId').value = item.id;
                 document.getElementById('itemName').value = item.name;
                 document.getElementById('itemColor').value = item.color;
                 document.getElementById('itemSize').value = item.size;
                 document.getElementById('itemQty').value = item.qty;
             } else {
-                title.innerText = 'Tambah Barang Baru';
+                document.getElementById('modalTitle').innerText = 'Tambah Data Pakaian';
                 document.getElementById('itemForm').reset();
                 document.getElementById('itemId').value = '';
             }
@@ -278,15 +270,15 @@
             const qty = parseInt(document.getElementById('itemQty').value);
 
             if (id) {
-                const index = items.findIndex(i => i.id == id);
-                items[index] = { id: parseInt(id), name, color, size, qty };
+                const idx = items.findIndex(i => i.id == id);
+                items[idx] = { id: parseInt(id), name, color, size, qty };
             } else {
                 items.push({ id: Date.now(), name, color, size, qty });
             }
 
-            saveDataToStorage();
+            saveStorage();
             closeModal();
-            renderData();
+            renderTable();
         }
 
         function editItem(id) {
@@ -294,43 +286,45 @@
         }
 
         function deleteItem(id) {
-            if (confirm('Hapus barang ini dari daftar stok?')) {
+            if (confirm('Hapus item ini dari rekapitulasi?')) {
                 items = items.filter(i => i.id !== id);
-                saveDataToStorage();
-                renderData();
+                saveStorage();
+                renderTable();
             }
         }
 
-        // Fitur Ekspor PNG Presisi Ultra-HD
+        function resetData() {
+            if (confirm('Kembalikan ke data awal bawaan?')) {
+                items = initialData;
+                saveStorage();
+                renderTable();
+            }
+        }
+
         function downloadPNG() {
             const card = document.getElementById('reportCard');
             const actionCols = document.querySelectorAll('.action-col');
             
-            // Sembunyikan tombol aksi saat proses download
             actionCols.forEach(el => el.style.display = 'none');
-            
-            // Tambahkan style khusus agar ukuran pas & estetik
             card.classList.add('export-mode');
 
             html2canvas(card, {
-                backgroundColor: '#111622',
-                scale: 3, // Resolusi 3x HD
+                backgroundColor: '#faf7f2',
+                scale: 3,
                 useCORS: true,
                 logging: false
             }).then(canvas => {
                 const link = document.createElement('a');
-                link.download = `Laporan-Stok-${new Date().toISOString().slice(0,10)}.png`;
+                link.download = `Laporan-Pakaian-${new Date().toISOString().slice(0,10)}.png`;
                 link.href = canvas.toDataURL('image/png', 1.0);
                 link.click();
 
-                // Kembalikan tampilan semula
                 card.classList.remove('export-mode');
                 actionCols.forEach(el => el.style.display = '');
             });
         }
 
-        // Load data saat halaman dibuka
-        renderData();
+        renderTable();
     </script>
 </body>
 </html>

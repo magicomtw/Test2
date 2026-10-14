@@ -210,12 +210,7 @@
     <!-- Script Logika Aplikasi -->
     <script>
         const initialData = [
-            { id: 1, name: "Kemeja Toyobo", color: "Mocca", size: "M", qty: 15 },
-            { id: 2, name: "Kemeja Toyobo", color: "Mocca", size: "L", qty: 20 },
-            { id: 3, name: "Kemeja Toyobo", color: "Hitam", size: "XL", qty: 12 },
-            { id: 4, name: "Koko Modern", color: "Putih", size: "M", qty: 25 },
-            { id: 5, name: "Koko Modern", color: "Biru Navy", size: "L", qty: 18 }
-        ];
+            ];
 
         let items = JSON.parse(localStorage.getItem('clothing_inventory')) || initialData;
         let savedTitle = localStorage.getItem('clothing_report_title') || "NAMA PEMILIK / BRAND";

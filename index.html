@@ -38,7 +38,6 @@
             border-radius: 20px !important;
             background: #faf7f2 !important;
         }
-        /* Border Tepi & Vertikal untuk Tabel */
         .custom-table th, .custom-table td {
             border-left: 1px solid #e6ded3;
             border-right: 1px solid #e6ded3;
@@ -54,21 +53,21 @@
 </head>
 <body class="min-h-screen font-sans pb-24">
 
-    <!-- 1. LANDING PAGE (Hanya Tombol Mulai & Background Video Lokal) -->
-    <div id="landingPage" class="fixed inset-0 z-50 flex items-center justify-center overflow-hidden transition-opacity duration-700">
+    <!-- 1. LANDING PAGE -->
+    <div id="landingPage" class="fixed inset-0 z-50 flex items-center justify-center overflow-hidden transition-opacity duration-700 bg-[#3d332c]">
         <video id="bgVideo" class="absolute inset-0 w-full h-full object-cover filter brightness-75" muted playsinline preload="auto">
             <source src="assets/bg.mp4" type="video/mp4">
         </video>
-        <div class="absolute inset-0 bg-[#3d332c]/40 backdrop-blur-sm"></div>
+        <div class="absolute inset-0 bg-[#3d332c]/50 backdrop-blur-sm"></div>
 
         <div class="relative z-10 text-center space-y-6 p-6 max-w-sm mx-auto">
-            <button onclick="startApp()" class="w-full bg-[#52796f] hover:bg-[#3f5d54] active:scale-95 text-white font-bold py-4 px-8 rounded-2xl shadow-2xl transition-all tracking-wider text-base sm:text-lg border border-white/20">
+            <button onclick="startApp()" class="w-full bg-[#52796f] hover:bg-[#3f5d54] active:scale-95 text-white font-bold py-4 px-8 rounded-2xl shadow-2xl transition-all tracking-wider text-base sm:text-lg border border-white/20 cursor-pointer">
                 Mulai Masuk 🚀
             </button>
         </div>
     </div>
 
-    <!-- Audio Efek Suara Saat Tombol Mulai Ditekan -->
+    <!-- Audio Efek Suara -->
     <audio id="clickSound" preload="auto">
         <source src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_c8c7a73167.mp3?filename=button-click-interlocked-10-101.mp3" type="audio/mpeg">
     </audio>
@@ -76,17 +75,13 @@
     <!-- 2. HALAMAN UTAMA LAPORAN -->
     <div id="mainApp" class="opacity-0 transition-opacity duration-1000 max-w-3xl mx-auto p-3 sm:p-6 md:p-10 space-y-6 hidden">
         
-        <!-- Area Kartu Laporan (Bisa didownload jadi PNG) -->
         <div id="reportCard" class="nude-card p-5 sm:p-8 rounded-2xl sm:rounded-3xl space-y-6 relative overflow-hidden">
             
-            <!-- Header Kartu -->
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-5 border-b border-[#e6ded3]">
                 <div class="flex-1 w-full">
-                    <!-- Nama Pemilik / Judul Laporan yang Bisa Diedit -->
                     <input type="text" id="reportTitleInput" value="NAMA PEMILIK / BRAND" oninput="saveReportTitle(this.value)" class="w-full bg-transparent font-extrabold text-xl sm:text-3xl tracking-tight text-[#3d332c] focus:outline-none focus:border-b focus:border-[#52796f] transition-all" title="Klik untuk edit nama">
                 </div>
 
-                <!-- Info Tanggal & Waktu (Posisi Presisi) -->
                 <div class="bg-[#eee5dc]/60 border border-[#dcd0c0]/60 px-3.5 py-2 rounded-xl text-xs space-y-1 text-[#6b5b52] shrink-0">
                     <div class="flex items-center gap-2">
                         <span class="text-[#8c7a6b]">Tanggal:</span>
@@ -99,7 +94,6 @@
                 </div>
             </div>
 
-            <!-- Tabel Data Pakaian -->
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-xs sm:text-sm custom-table">
                     <thead>
@@ -111,25 +105,19 @@
                             <th class="py-3.5 px-4 font-semibold text-right action-col">Aksi</th>
                         </tr>
                     </thead>
-                    <tbody id="inventoryList" class="divide-y divide-[#e6ded3]">
-                        <!-- Rendered via JS -->
-                    </tbody>
+                    <tbody id="inventoryList" class="divide-y divide-[#e6ded3]"></tbody>
                 </table>
             </div>
 
-            <!-- Kotak Keterangan Jumlah Total Per-Ukuran (Presisi) -->
             <div id="sizeSummaryBox" class="bg-[#eee5dc]/40 border border-[#dcd0c0] p-4 rounded-xl space-y-2 text-xs text-[#5c4f44]">
                 <div class="flex justify-between items-center">
                     <p class="font-bold text-[#3d332c]">Keterangan Total Stok per Ukuran:</p>
                 </div>
-                <div id="sizeBreakdownList" class="grid grid-cols-2 sm:flex sm:flex-wrap gap-2.5">
-                    <!-- Rendered via JS -->
-                </div>
+                <div id="sizeBreakdownList" class="grid grid-cols-2 sm:flex sm:flex-wrap gap-2.5"></div>
             </div>
 
         </div>
 
-        <!-- FITUR KHUSUS WEB: Pengaturan & Rincian Harga Satuan (Hanya Tampil di Web, Tidak Ikut Ter-download) -->
         <div id="webOnlyPriceSection" class="nude-card p-4 sm:p-5 rounded-2xl space-y-3">
             <div class="flex justify-between items-center border-b border-[#e6ded3] pb-2">
                 <h3 class="text-xs sm:text-sm font-bold text-[#3d332c]">💰 Kalkulator Harga Otomatis per Ukuran</h3>
@@ -137,19 +125,14 @@
             </div>
             <p class="text-[11px] text-[#8c7a6b]">Atur harga satuan untuk setiap ukuran di bawah ini. Total nominal harga akan dihitung otomatis:</p>
             
-            <!-- Input Harga per Ukuran -->
-            <div id="priceInputsContainer" class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-                <!-- Rendered via JS -->
-            </div>
+            <div id="priceInputsContainer" class="grid grid-cols-2 sm:grid-cols-4 gap-2.5"></div>
 
-            <!-- Total Keseluruhan Nominal Harga -->
             <div class="pt-2 border-t border-[#e6ded3] flex justify-between items-center text-xs sm:text-sm font-bold text-[#3d332c]">
                 <span>Total Estimasi Pendapatan / Harga:</span>
                 <span id="grandTotalPrice" class="text-emerald-700 text-sm sm:text-base">Rp 0</span>
             </div>
         </div>
 
-        <!-- Tombol Kontrol Utama di Bawah -->
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <button onclick="downloadPNG()" class="bg-[#52796f] hover:bg-[#3f5d54] text-white p-3.5 rounded-2xl text-xs sm:text-sm font-semibold transition-all shadow-md flex items-center justify-center gap-2">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
@@ -167,7 +150,7 @@
 
     </div>
 
-    <!-- Modal Form Tambah / Edit -->
+    <!-- Modal Form -->
     <div id="modal" class="fixed inset-0 bg-[#3d332c]/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
         <div class="nude-card w-full max-w-md p-6 rounded-2xl shadow-2xl relative space-y-4">
             <div class="flex justify-between items-center border-b border-[#e6ded3] pb-3">
@@ -207,7 +190,7 @@
         </div>
     </div>
 
-    <!-- Script Logika Aplikasi -->
+    <!-- Script Logika -->
     <script>
         const initialData = [
             { id: 1, name: "Kemeja Toyobo", color: "Mocca", size: "M", qty: 15 },
@@ -223,7 +206,6 @@
 
         document.getElementById('reportTitleInput').value = savedTitle;
 
-        // Tanggal & Waktu Realtime
         const now = new Date();
         document.getElementById('currentDate').innerText = now.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
         document.getElementById('currentTime').innerText = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
@@ -234,17 +216,27 @@
             const landing = document.getElementById('landingPage');
             const mainApp = document.getElementById('mainApp');
 
-            video.play().catch(e => console.log("Autoplay blocked:", e));
-            sound.play().catch(e => console.log("Audio blocked:", e));
+            // Coba mainkan video & suara dengan pengaman error agar tidak macet
+            if (video) {
+                video.play().catch(e => console.log("Video play prevented:", e));
+            }
+            if (sound) {
+                sound.play().catch(e => console.log("Audio play prevented:", e));
+            }
 
+            // Langsung jalankan transisi masuk ke halaman utama secara aman
             setTimeout(() => {
-                landing.style.opacity = '0';
-                setTimeout(() => {
-                    landing.style.display = 'none';
-                    mainApp.classList.remove('hidden');
-                    setTimeout(() => { mainApp.style.opacity = '1'; }, 50);
-                }, 700);
-            }, 600);
+                if (landing) {
+                    landing.style.opacity = '0';
+                    setTimeout(() => {
+                        landing.style.display = 'none';
+                        if (mainApp) {
+                            mainApp.classList.remove('hidden');
+                            setTimeout(() => { mainApp.style.opacity = '1'; }, 50);
+                        }
+                    }, 500);
+                }
+            }, 300);
         }
 
         function saveStorage() {
@@ -282,13 +274,11 @@
             }
 
             let sizeTotals = {};
-            let activeSizes = new Set();
 
             items.forEach(item => {
                 const upperSize = item.size.trim().toUpperCase();
                 const qty = parseInt(item.qty) || 0;
                 sizeTotals[upperSize] = (sizeTotals[upperSize] || 0) + qty;
-                activeSizes.add(upperSize);
 
                 const tr = document.createElement('tr');
                 tr.className = 'hover:bg-[#eee5dc]/40 transition-colors';
@@ -309,20 +299,17 @@
 
             let grandTotal = 0;
 
-            // Render Keterangan Total Stok per Ukuran + Kalkulasi Harga
             for (let [size, total] of Object.entries(sizeTotals)) {
                 if (!(size in sizePrices)) sizePrices[size] = 0;
                 const unitPrice = sizePrices[size];
                 const subTotal = total * unitPrice;
                 grandTotal += subTotal;
 
-                // Keterangan di Kartu Utama
                 const badge = document.createElement('div');
                 badge.className = 'bg-white border border-[#dcd0c0] px-3 py-1.5 rounded-lg shadow-sm flex items-center justify-between sm:justify-start gap-3';
                 badge.innerHTML = `<span><strong>${size}</strong> : <span class="text-[#52796f] font-bold">${total} pcs</span></span>`;
                 sizeBreakdownList.appendChild(badge);
 
-                // Input Pengaturan Harga Satuan di Web Saja
                 const priceDiv = document.createElement('div');
                 priceDiv.className = 'bg-white border border-[#dcd0c0] p-2.5 rounded-xl space-y-1';
                 priceDiv.innerHTML = `
@@ -354,4 +341,79 @@
         }
 
         function closeModal() {
-            document.getElementById('modal').classList.add('
+            document.getElementById('modal').classList.add('hidden');
+        }
+
+        function saveItem(event) {
+            event.preventDefault();
+            const id = document.getElementById('itemId').value;
+            const name = document.getElementById('itemName').value;
+            const color = document.getElementById('itemColor').value;
+            const size = document.getElementById('itemSize').value;
+            const qty = parseInt(document.getElementById('itemQty').value);
+
+            if (id) {
+                const idx = items.findIndex(i => i.id == id);
+                items[idx] = { id: parseInt(id), name, color, size, qty };
+            } else {
+                items.push({ id: Date.now(), name, color, size, qty });
+            }
+
+            saveStorage();
+            closeModal();
+            renderTable();
+        }
+
+        function editItem(id) {
+            openModal('edit', id);
+        }
+
+        function deleteItem(id) {
+            if (confirm('Hapus item ini dari rekapitulasi?')) {
+                items = items.filter(i => i.id !== id);
+                saveStorage();
+                renderTable();
+            }
+        }
+
+        function resetData() {
+            if (confirm('Kembalikan ke data awal bawaan?')) {
+                items = initialData;
+                saveStorage();
+                renderTable();
+            }
+        }
+
+        function downloadPNG() {
+            const card = document.getElementById('reportCard');
+            const actionCols = document.querySelectorAll('.action-col');
+            const titleInput = document.getElementById('reportTitleInput');
+            const priceSection = document.getElementById('webOnlyPriceSection');
+            
+            if (priceSection) priceSection.style.display = 'none';
+            titleInput.classList.remove('focus:border-b', 'focus:border-[#52796f]');
+            actionCols.forEach(el => el.style.display = 'none');
+            card.classList.add('export-mode');
+
+            html2canvas(card, {
+                backgroundColor: '#faf7f2',
+                scale: 3,
+                useCORS: true,
+                logging: false
+            }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = `Laporan-Pakaian-${new Date().toISOString().slice(0,10)}.png`;
+                link.href = canvas.toDataURL('image/png', 1.0);
+                link.click();
+
+                if (priceSection) priceSection.style.display = '';
+                card.classList.remove('export-mode');
+                titleInput.classList.add('focus:border-b', 'focus:border-[#52796f]');
+                actionCols.forEach(el => el.style.display = '');
+            });
+        }
+
+        renderTable();
+    </script>
+</body>
+</html>

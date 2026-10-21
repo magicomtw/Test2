@@ -3,13 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>catatan akhir zaman</title>
+    <title>Laporan Data Pakaian</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Plus Jakarta Sans -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- html2canvas untuk Download PNG -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <!-- Tesseract.js untuk OCR / Image to Text Gratis -->
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -22,8 +24,8 @@
     <style>
         body {
             background-color: #f3efe9;
-            background-image: radial-gradient(at 0% 0%, rgba(220, 210, 198, 0.4) 0px, transparent 90%),
-                              radial-gradient(at 100% 100%, rgba(205, 193, 179, 0.4) 0px, transparent 90%);
+            background-image: radial-gradient(at 0% 0%, rgba(220, 210, 198, 0.4) 0px, transparent 50%),
+                              radial-gradient(at 100% 100%, rgba(205, 193, 179, 0.4) 0px, transparent 50%);
             background-attachment: fixed;
             color: #4a4039;
         }
@@ -53,23 +55,22 @@
 </head>
 <body class="min-h-screen font-sans pb-24">
 
-    <!-- 1. LANDING PAGE (Video BG & Tombol Tak Terlihat di Area Oranye) -->
+    <!-- 1. LANDING PAGE (Video BG & Tombol Tak Terlihat) -->
     <div id="landingPage" class="fixed inset-0 z-50 flex items-center justify-center overflow-hidden transition-opacity duration-700 bg-black">
         <video id="bgVideo" class="absolute inset-0 w-full h-full object-cover filter brightness-90" muted playsinline preload="auto" loop>
             <source src="assets/bg.mp4" type="video/mp4">
         </video>
-        <!-- Overlay tipis agar video latar belakang terlihat lebih jelas -->
         <div class="absolute inset-0 bg-black/10"></div>
 
-        <!-- Tombol Tak Terlihat di Posisi Area Oranye / Dahi -->
+        <!-- Tombol Tak Terlihat di Posisi Area Oranye/Dahi -->
         <button onclick="startApp()" class="absolute z-20 cursor-pointer opacity-0 bg-red-500/20 hover:bg-red-500/40" style="top: 15%; left: 30%; width: 40%; height: 15%;" title="Mulai">
-            Mulai
+            Mulai Masuk 🚀
         </button>
     </div>
 
     <!-- Audio Efek Suara Klik -->
     <audio id="clickSound" preload="auto">
-        <source src="assets/bg.mp3" type="audio/mpeg">
+        <source src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_c8c7a73167.mp3?filename=button-click-interlocked-10-101.mp3" type="audio/mpeg">
     </audio>
 
     <!-- 2. HALAMAN UTAMA LAPORAN -->
@@ -77,28 +78,34 @@
         
         <div id="reportCard" class="nude-card p-5 sm:p-8 rounded-2xl sm:rounded-3xl space-y-6 relative overflow-hidden">
             
-            <!-- Header Kartu & Tombol Tambah Barang di Atas Tabel -->
+            <!-- Header Kartu & Tombol-tombol di Atas Tabel -->
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-5 border-b border-[#e6ded3]">
                 <div class="flex-1 w-full">
-                    <input type="text" id="reportTitleInput" value="NAMA" oninput="saveReportTitle(this.value)" class="w-full bg-transparent font-extrabold text-xl sm:text-3xl tracking-tight text-[#3d332c] focus:outline-none focus:border-b focus:border-[#52796f] transition-all" title="Klik untuk edit nama">
+                    <input type="text" id="reportTitleInput" value="NAMA PEMILIK / BRAND" oninput="saveReportTitle(this.value)" class="w-full bg-transparent font-extrabold text-xl sm:text-3xl tracking-tight text-[#3d332c] focus:outline-none focus:border-b focus:border-[#52796f] transition-all" title="Klik untuk edit nama">
                 </div>
 
-                <div class="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
-                    <div class="bg-[#eee5dc]/60 border border-[#dcd0c0]/60 px-3.5 py-2 rounded-xl text-xs space-y-1 text-[#6b5b52] shrink-0">
-                        <div class="flex items-center gap-2">
+                <div class="flex flex-wrap items-center gap-2.5 w-full sm:w-auto justify-between sm:justify-end">
+                    <div class="bg-[#eee5dc]/60 border border-[#dcd0c0]/60 px-3 py-1.5 rounded-xl text-xs space-y-0.5 text-[#6b5b52] shrink-0">
+                        <div class="flex items-center gap-1.5">
                             <span class="text-[#8c7a6b]">Tanggal:</span>
                             <strong id="currentDate" class="text-[#3d332c]"></strong>
                         </div>
-                        <div class="flex items-center gap-2">
+                        <div class="flex items-center gap-1.5">
                             <span class="text-[#8c7a6b]">Waktu:</span>
                             <strong id="currentTime" class="text-[#3d332c]"></strong>
                         </div>
                     </div>
 
-                    <!-- Tombol Tambah Data Barang (Posisi Atas Tabel) -->
-                    <button onclick="openModal('add')" class="action-col bg-[#52796f] hover:bg-[#3f5d54] text-white px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all shadow-md flex items-center justify-center gap-1.5 shrink-0">
+                    <!-- Tombol Scan Foto Catatan (Fitur Gratis) -->
+                    <button onclick="openOcrModal()" class="action-col bg-[#8c7a6b] hover:bg-[#6b5b52] text-white px-3 py-2 rounded-xl text-xs font-semibold transition-all shadow-md flex items-center gap-1 shrink-0">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                        <span>📷 Scan Catatan</span>
+                    </button>
+
+                    <!-- Tombol Tambah Manual -->
+                    <button onclick="openModal('add')" class="action-col bg-[#52796f] hover:bg-[#3f5d54] text-white px-3 py-2 rounded-xl text-xs font-semibold transition-all shadow-md flex items-center gap-1 shrink-0">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                        <span>tambih data</span>
+                        <span>+ Barang</span>
                     </button>
                 </div>
             </div>
@@ -108,7 +115,7 @@
                 <table class="w-full text-left text-xs sm:text-sm custom-table">
                     <thead>
                         <tr class="bg-[#eee5dc]/90 text-[#6b5b52] border-b border-[#dcd0c0]">
-                            <th class="py-3.5 px-4 font-semibold">Nama</th>
+                            <th class="py-3.5 px-4 font-semibold">Nama Barang</th>
                             <th class="py-3.5 px-4 font-semibold">Warna</th>
                             <th class="py-3.5 px-4 font-semibold text-center">Ukuran</th>
                             <th class="py-3.5 px-4 font-semibold text-center">Jumlah (Qty)</th>
@@ -122,7 +129,7 @@
             <!-- Keterangan Total Stok per Ukuran -->
             <div id="sizeSummaryBox" class="bg-[#eee5dc]/40 border border-[#dcd0c0] p-4 rounded-xl space-y-2 text-xs text-[#5c4f44]">
                 <div class="flex justify-between items-center">
-                    <p class="font-bold text-[#3d332c]">jumlah perukuran</p>
+                    <p class="font-bold text-[#3d332c]">Keterangan Total Stok per Ukuran:</p>
                 </div>
                 <div id="sizeBreakdownList" class="grid grid-cols-2 sm:flex sm:flex-wrap gap-2.5"></div>
             </div>
@@ -132,47 +139,46 @@
         <!-- Kalkulator Harga Otomatis Khusus Web -->
         <div id="webOnlyPriceSection" class="nude-card p-4 sm:p-5 rounded-2xl space-y-3">
             <div class="flex justify-between items-center border-b border-[#e6ded3] pb-2">
-                <h3 class="text-xs sm:text-sm font-bold text-[#3d332c]">jumlah kira kira bebenangan</h3>
-                <span class="text-[10px] bg-[#52796f]/10 text-[#52796f] px-2 py-0.5 rounded-full font-semibold">moal kaprint</span>
+                <h3 class="text-xs sm:text-sm font-bold text-[#3d332c]">💰 Kalkulator Harga Otomatis per Ukuran</h3>
+                <span class="text-[10px] bg-[#52796f]/10 text-[#52796f] px-2 py-0.5 rounded-full font-semibold">Khusus Web</span>
             </div>
-            <p class="text-[11px] text-[#8c7a6b]">harga otomatis:</p>
+            <p class="text-[11px] text-[#8c7a6b]">Atur harga satuan untuk setiap ukuran di bawah ini. Total nominal harga akan dihitung otomatis:</p>
             
             <div id="priceInputsContainer" class="grid grid-cols-2 sm:grid-cols-4 gap-2.5"></div>
 
             <div class="pt-2 border-t border-[#e6ded3] flex justify-between items-center text-xs sm:text-sm font-bold text-[#3d332c]">
-                <span>perkiraan bebenangan:</span>
+                <span>Total Estimasi Pendapatan / Harga:</span>
                 <span id="grandTotalPrice" class="text-emerald-700 text-sm sm:text-base">Rp 0</span>
             </div>
         </div>
 
-        <!-- Tombol Aksi Bawah (Download & Reset) -->
+        <!-- Tombol Aksi Bawah -->
         <div class="grid grid-cols-2 gap-3">
             <button onclick="downloadPNG()" class="bg-[#52796f] hover:bg-[#3f5d54] text-white p-3.5 rounded-2xl text-xs sm:text-sm font-semibold transition-all shadow-md flex items-center justify-center gap-2">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-                Download laporan
+                Download PNG
             </button>
             <button onclick="resetData()" class="bg-[#e6ded3]/50 hover:bg-[#dcd0c0]/70 text-[#6b5b52] border border-[#dcd0c0] p-3.5 rounded-2xl text-xs sm:text-sm font-semibold transition-all flex items-center justify-center gap-2">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-                Reset laporan
+                Reset Default
             </button>
         </div>
 
     </div>
 
-    <!-- Modal Form Tambah/Edit Data -->
+    <!-- Modal Form Manual -->
     <div id="modal" class="fixed inset-0 bg-[#3d332c]/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
         <div class="nude-card w-full max-w-md p-6 rounded-2xl shadow-2xl relative space-y-4">
             <div class="flex justify-between items-center border-b border-[#e6ded3] pb-3">
-                <h3 id="modalTitle" class="text-base font-bold text-[#3d332c]">Tambah Data</h3>
+                <h3 id="modalTitle" class="text-base font-bold text-[#3d332c]">Tambah Data Pakaian</h3>
                 <button onclick="closeModal()" class="text-[#8c7a6b] hover:text-[#3d332c]">✕</button>
             </div>
             
             <form id="itemForm" onsubmit="saveItem(event)" class="space-y-3.5">
                 <input type="hidden" id="itemId">
-                
                 <div>
-                    <label class="block text-xs font-semibold text-[#6b5b52] mb-1">Nama</label>
-                    <input type="text" id="itemName" required placeholder="Contoh: Bergo" class="w-full bg-white border border-[#dcd0c0] rounded-xl px-3.5 py-2 text-xs sm:text-sm text-[#3d332c] focus:outline-none focus:border-[#52796f]">
+                    <label class="block text-xs font-semibold text-[#6b5b52] mb-1">Nama Barang</label>
+                    <input type="text" id="itemName" required placeholder="Contoh: Kemeja Toyobo" class="w-full bg-white border border-[#dcd0c0] rounded-xl px-3.5 py-2 text-xs sm:text-sm text-[#3d332c] focus:outline-none focus:border-[#52796f]">
                 </div>
 
                 <div class="grid grid-cols-2 gap-3">
@@ -199,13 +205,47 @@
         </div>
     </div>
 
+    <!-- MODAL SCAN FOTO / OCR (GRATIS) -->
+    <div id="ocrModal" class="fixed inset-0 bg-[#3d332c]/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+        <div class="nude-card w-full max-w-lg p-6 rounded-2xl shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center border-b border-[#e6ded3] pb-3">
+                <h3 class="text-base font-bold text-[#3d332c]">📷 Scan Foto Catatan / Screenshot</h3>
+                <button onclick="closeOcrModal()" class="text-[#8c7a6b] hover:text-[#3d332c]">✕</button>
+            </div>
+
+            <p class="text-xs text-[#8c7a6b]">Pilih foto catatan tangan atau screenshot data pakaian. AI Gratis akan membaca teksnya secara otomatis:</p>
+
+            <div class="space-y-3">
+                <input type="file" id="ocrInput" accept="image/*" onchange="processOcrImage(event)" class="w-full text-xs text-[#5c4f44] file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-[#eee5dc] file:text-[#3d332c] hover:file:bg-[#dcd0c0] cursor-pointer">
+                
+                <div id="ocrStatus" class="hidden text-xs text-center py-2 bg-[#eee5dc]/50 rounded-xl text-[#52796f] font-semibold animate-pulse">
+                    ⏳ Membaca foto... Harap tunggu beberapa detik...
+                </div>
+
+                <div id="ocrResultBox" class="hidden space-y-2">
+                    <label class="block text-xs font-semibold text-[#6b5b52]">Hasil Teks Dibaca (Bisa Anda Koreksi):</label>
+                    <textarea id="ocrRawText" rows="4" class="w-full bg-white border border-[#dcd0c0] rounded-xl p-3 text-xs text-[#3d332c] focus:outline-none focus:border-[#52796f]" placeholder="Hasil teks akan muncul di sini..."></textarea>
+                    
+                    <button onclick="convertTextToItems()" class="w-full bg-[#52796f] hover:bg-[#3f5d54] text-white py-2.5 rounded-xl text-xs font-semibold shadow-md">
+                        ✨ Ekstrak & Tambahkan ke Tabel Otomatis
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Script Logika -->
     <script>
         const initialData = [
-         ];
+            { id: 1, name: "Kemeja Toyobo", color: "Mocca", size: "M", qty: 15 },
+            { id: 2, name: "Kemeja Toyobo", color: "Mocca", size: "L", qty: 20 },
+            { id: 3, name: "Kemeja Toyobo", color: "Hitam", size: "XL", qty: 12 },
+            { id: 4, name: "Koko Modern", color: "Putih", size: "M", qty: 25 },
+            { id: 5, name: "Koko Modern", color: "Biru Navy", size: "L", qty: 18 }
+        ];
 
         let items = JSON.parse(localStorage.getItem('clothing_inventory')) || initialData;
-        let savedTitle = localStorage.getItem('clothing_report_title') || "NAMA";
+        let savedTitle = localStorage.getItem('clothing_report_title') || "NAMA PEMILIK / BRAND";
         let sizePrices = JSON.parse(localStorage.getItem('clothing_size_prices')) || { "S": 4000, "M": 6000, "L": 7000, "XL": 8000 };
 
         document.getElementById('reportTitleInput').value = savedTitle;
@@ -220,14 +260,9 @@
             const landing = document.getElementById('landingPage');
             const mainApp = document.getElementById('mainApp');
 
-            if (video) {
-                video.play().catch(e => console.log("Video play prevented:", e));
-            }
-            if (sound) {
-                sound.play().catch(e => console.log("Audio play prevented:", e));
-            }
+            if (video) video.play().catch(e => console.log(e));
+            if (sound) sound.play().catch(e => console.log(e));
 
-            // Tunggu 0.7 detik sebelum transisi
             setTimeout(() => {
                 if (landing) {
                     landing.style.opacity = '0';
@@ -384,6 +419,81 @@
                 items = initialData;
                 saveStorage();
                 renderTable();
+            }
+        }
+
+        /* LOGIKA SCAN OCR GRATIS */
+        function openOcrModal() {
+            document.getElementById('ocrModal').classList.remove('hidden');
+            document.getElementById('ocrInput').value = '';
+            document.getElementById('ocrStatus').classList.add('hidden');
+            document.getElementById('ocrResultBox').classList.add('hidden');
+        }
+
+        function closeOcrModal() {
+            document.getElementById('ocrModal').classList.add('hidden');
+        }
+
+        function processOcrImage(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const status = document.getElementById('ocrStatus');
+            const resultBox = document.getElementById('ocrResultBox');
+            
+            status.classList.remove('hidden');
+            resultBox.classList.add('hidden');
+
+            Tesseract.recognize(
+                file,
+                'ind+eng',
+                { logger: m => console.log(m) }
+            ).then(({ data: { text } }) => {
+                status.classList.add('hidden');
+                resultBox.classList.remove('hidden');
+                document.getElementById('ocrRawText').value = text;
+            }).catch(err => {
+                alert("Gagal membaca gambar: " + err.message);
+                status.classList.add('hidden');
+            });
+        }
+
+        function convertTextToItems() {
+            const text = document.getElementById('ocrRawText').value;
+            const lines = text.split('\n');
+            let addedCount = 0;
+
+            lines.forEach(line => {
+                const cleanLine = line.trim();
+                if (!cleanLine) return;
+
+                // Memisahkan kata berdasarkan spasi/koma/strip
+                const parts = cleanLine.split(/[\s,|-]+/);
+                if (parts.length >= 2) {
+                    const qtyMatch = cleanLine.match(/\d+/);
+                    const qty = qtyMatch ? parseInt(qtyMatch[0]) : 1;
+                    const name = parts[0] || "Barang Scan";
+                    const color = parts[1] || "Bawaan";
+                    const size = parts.find(p => ['S','M','L','XL','XXL'].includes(p.toUpperCase())) || "M";
+
+                    items.push({
+                        id: Date.now() + Math.random(),
+                        name: name,
+                        color: color,
+                        size: size.toUpperCase(),
+                        qty: qty
+                    });
+                    addedCount++;
+                }
+            });
+
+            if (addedCount > 0) {
+                saveStorage();
+                renderTable();
+                closeOcrModal();
+                alert(`Berhasil menambahkan ${addedCount} data dari hasil scan foto!`);
+            } else {
+                alert("Tidak ada pola data yang terbaca. Coba rapikan teks hasil scan secara manual di kotak teks.");
             }
         }
 

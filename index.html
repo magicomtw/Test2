@@ -22,32 +22,39 @@
         }
     </script>
     <style>
+        :root {
+            --bg-main: #f3efe9;
+            --card-bg: #faf7f2;
+            --border-color: #e6ded3;
+            --text-main: #4a4039;
+            --primary: #52796f;
+            --primary-hover: #3f5d54;
+            --header-bg: rgba(238, 229, 220, 0.9);
+        }
         body {
-            background-color: #f3efe9;
-            background-image: radial-gradient(at 0% 0%, rgba(220, 210, 198, 0.4) 0px, transparent 50%),
-                              radial-gradient(at 100% 100%, rgba(205, 193, 179, 0.4) 0px, transparent 50%);
+            background-color: var(--bg-main);
+            color: var(--text-main);
             background-attachment: fixed;
-            color: #4a4039;
         }
         .nude-card {
-            background: #faf7f2;
-            border: 1px solid #e6ded3;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
             box-shadow: 0 10px 30px -5px rgba(139, 120, 104, 0.08);
         }
         .export-mode {
             width: 750px !important;
             padding: 40px !important;
             border-radius: 20px !important;
-            background: #faf7f2 !important;
+            background: var(--card-bg) !important;
         }
         .custom-table th, .custom-table td {
-            border-left: 1px solid #e6ded3;
-            border-right: 1px solid #e6ded3;
+            border-left: 1px solid var(--border-color);
+            border-right: 1px solid var(--border-color);
         }
         .custom-table {
             border-collapse: separate;
             border-spacing: 0;
-            border: 1px solid #e6ded3;
+            border: 1px solid var(--border-color);
             border-radius: 12px;
             overflow: hidden;
         }
@@ -62,7 +69,7 @@
         </video>
         <div class="absolute inset-0 bg-black/10"></div>
 
-        <!-- Tombol Tak Terlihat di Posisi Area Oranye/Dahi -->
+        <!-- Tombol Tak Terlihat di Posisi Area Oranye / Dahi -->
         <button onclick="startApp()" class="absolute z-20 cursor-pointer opacity-0 bg-red-500/20 hover:bg-red-500/40" style="top: 15%; left: 30%; width: 40%; height: 15%;" title="Mulai">
             Mulai Masuk 🚀
         </button>
@@ -78,33 +85,36 @@
         
         <div id="reportCard" class="nude-card p-5 sm:p-8 rounded-2xl sm:rounded-3xl space-y-6 relative overflow-hidden">
             
-            <!-- Header Kartu & Tombol-tombol di Atas Tabel -->
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-5 border-b border-[#e6ded3]">
+            <!-- Header Kartu, Pilihan Tema & Tombol di Atas Tabel -->
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-5 border-b border-[var(--border-color)]">
                 <div class="flex-1 w-full">
-                    <input type="text" id="reportTitleInput" value="NAMA PEMILIK / BRAND" oninput="saveReportTitle(this.value)" class="w-full bg-transparent font-extrabold text-xl sm:text-3xl tracking-tight text-[#3d332c] focus:outline-none focus:border-b focus:border-[#52796f] transition-all" title="Klik untuk edit nama">
+                    <input type="text" id="reportTitleInput" value="NAMA PEMILIK / BRAND" oninput="saveReportTitle(this.value)" class="w-full bg-transparent font-extrabold text-xl sm:text-3xl tracking-tight focus:outline-none focus:border-b focus:border-[var(--primary)] transition-all" title="Klik untuk edit nama">
                 </div>
 
-                <div class="flex flex-wrap items-center gap-2.5 w-full sm:w-auto justify-between sm:justify-end">
-                    <div class="bg-[#eee5dc]/60 border border-[#dcd0c0]/60 px-3 py-1.5 rounded-xl text-xs space-y-0.5 text-[#6b5b52] shrink-0">
+                <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
+                    <!-- Dropdown Pilihan Tema Warna -->
+                    <select id="themeSelector" onchange="changeTheme(this.value)" class="bg-white border border-[var(--border-color)] text-xs font-semibold px-2.5 py-2 rounded-xl focus:outline-none text-[var(--text-main)] action-col cursor-pointer">
+                        <option value="nude">🎨 Warm Nude</option>
+                        <option value="espresso">☕ Espresso</option>
+                        <option value="sage">🌿 Sage Green</option>
+                        <option value="rose">🌹 Rose Quartz</option>
+                        <option value="dark">🌙 Midnight Charcoal</option>
+                    </select>
+
+                    <div class="bg-black/5 border border-[var(--border-color)] px-3 py-1.5 rounded-xl text-xs space-y-0.5 shrink-0">
                         <div class="flex items-center gap-1.5">
-                            <span class="text-[#8c7a6b]">Tanggal:</span>
-                            <strong id="currentDate" class="text-[#3d332c]"></strong>
-                        </div>
-                        <div class="flex items-center gap-1.5">
-                            <span class="text-[#8c7a6b]">Waktu:</span>
-                            <strong id="currentTime" class="text-[#3d332c]"></strong>
+                            <span class="opacity-70">Tanggal:</span>
+                            <strong id="currentDate"></strong>
                         </div>
                     </div>
 
-                    <!-- Tombol Scan Foto Catatan (Fitur Gratis) -->
-                    <button onclick="openOcrModal()" class="action-col bg-[#8c7a6b] hover:bg-[#6b5b52] text-white px-3 py-2 rounded-xl text-xs font-semibold transition-all shadow-md flex items-center gap-1 shrink-0">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                        <span>📷 Scan Catatan</span>
+                    <!-- Tombol Scan Catatan -->
+                    <button onclick="openOcrModal()" class="action-col bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white px-3 py-2 rounded-xl text-xs font-semibold transition-all shadow-md flex items-center gap-1 shrink-0">
+                        <span>📷 Scan</span>
                     </button>
 
-                    <!-- Tombol Tambah Manual -->
-                    <button onclick="openModal('add')" class="action-col bg-[#52796f] hover:bg-[#3f5d54] text-white px-3 py-2 rounded-xl text-xs font-semibold transition-all shadow-md flex items-center gap-1 shrink-0">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                    <!-- Tombol Tambah Barang -->
+                    <button onclick="openModal('add')" class="action-col bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white px-3 py-2 rounded-xl text-xs font-semibold transition-all shadow-md flex items-center gap-1 shrink-0">
                         <span>+ Barang</span>
                     </button>
                 </div>
@@ -114,7 +124,7 @@
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-xs sm:text-sm custom-table">
                     <thead>
-                        <tr class="bg-[#eee5dc]/90 text-[#6b5b52] border-b border-[#dcd0c0]">
+                        <tr style="background-color: var(--header-bg);" class="border-b border-[var(--border-color)]">
                             <th class="py-3.5 px-4 font-semibold">Nama Barang</th>
                             <th class="py-3.5 px-4 font-semibold">Warna</th>
                             <th class="py-3.5 px-4 font-semibold text-center">Ukuran</th>
@@ -122,14 +132,14 @@
                             <th class="py-3.5 px-4 font-semibold text-right action-col">Aksi</th>
                         </tr>
                     </thead>
-                    <tbody id="inventoryList" class="divide-y divide-[#e6ded3]"></tbody>
+                    <tbody id="inventoryList" class="divide-y divide-[var(--border-color)]"></tbody>
                 </table>
             </div>
 
             <!-- Keterangan Total Stok per Ukuran -->
-            <div id="sizeSummaryBox" class="bg-[#eee5dc]/40 border border-[#dcd0c0] p-4 rounded-xl space-y-2 text-xs text-[#5c4f44]">
+            <div id="sizeSummaryBox" class="bg-black/5 border border-[var(--border-color)] p-4 rounded-xl space-y-2 text-xs">
                 <div class="flex justify-between items-center">
-                    <p class="font-bold text-[#3d332c]">Keterangan Total Stok per Ukuran:</p>
+                    <p class="font-bold">Keterangan Total Stok per Ukuran:</p>
                 </div>
                 <div id="sizeBreakdownList" class="grid grid-cols-2 sm:flex sm:flex-wrap gap-2.5"></div>
             </div>
@@ -138,15 +148,15 @@
 
         <!-- Kalkulator Harga Otomatis Khusus Web -->
         <div id="webOnlyPriceSection" class="nude-card p-4 sm:p-5 rounded-2xl space-y-3">
-            <div class="flex justify-between items-center border-b border-[#e6ded3] pb-2">
-                <h3 class="text-xs sm:text-sm font-bold text-[#3d332c]">💰 Kalkulator Harga Otomatis per Ukuran</h3>
-                <span class="text-[10px] bg-[#52796f]/10 text-[#52796f] px-2 py-0.5 rounded-full font-semibold">Khusus Web</span>
+            <div class="flex justify-between items-center border-b border-[var(--border-color)] pb-2">
+                <h3 class="text-xs sm:text-sm font-bold">💰 Kalkulator Harga Otomatis per Ukuran</h3>
+                <span class="text-[10px] bg-[var(--primary)]/10 text-[var(--primary)] px-2 py-0.5 rounded-full font-semibold">Khusus Web</span>
             </div>
-            <p class="text-[11px] text-[#8c7a6b]">Atur harga satuan untuk setiap ukuran di bawah ini. Total nominal harga akan dihitung otomatis:</p>
+            <p class="text-[11px] opacity-70">Atur harga satuan untuk setiap ukuran di bawah ini. Total nominal harga akan dihitung otomatis:</p>
             
             <div id="priceInputsContainer" class="grid grid-cols-2 sm:grid-cols-4 gap-2.5"></div>
 
-            <div class="pt-2 border-t border-[#e6ded3] flex justify-between items-center text-xs sm:text-sm font-bold text-[#3d332c]">
+            <div class="pt-2 border-t border-[var(--border-color)] flex justify-between items-center text-xs sm:text-sm font-bold">
                 <span>Total Estimasi Pendapatan / Harga:</span>
                 <span id="grandTotalPrice" class="text-emerald-700 text-sm sm:text-base">Rp 0</span>
             </div>
@@ -154,12 +164,10 @@
 
         <!-- Tombol Aksi Bawah -->
         <div class="grid grid-cols-2 gap-3">
-            <button onclick="downloadPNG()" class="bg-[#52796f] hover:bg-[#3f5d54] text-white p-3.5 rounded-2xl text-xs sm:text-sm font-semibold transition-all shadow-md flex items-center justify-center gap-2">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+            <button onclick="downloadPNG()" class="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white p-3.5 rounded-2xl text-xs sm:text-sm font-semibold transition-all shadow-md flex items-center justify-center gap-2">
                 Download PNG
             </button>
-            <button onclick="resetData()" class="bg-[#e6ded3]/50 hover:bg-[#dcd0c0]/70 text-[#6b5b52] border border-[#dcd0c0] p-3.5 rounded-2xl text-xs sm:text-sm font-semibold transition-all flex items-center justify-center gap-2">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+            <button onclick="resetData()" class="bg-black/5 hover:bg-black/10 border border-[var(--border-color)] p-3.5 rounded-2xl text-xs sm:text-sm font-semibold transition-all flex items-center justify-center gap-2">
                 Reset Default
             </button>
         </div>
@@ -167,66 +175,66 @@
     </div>
 
     <!-- Modal Form Manual -->
-    <div id="modal" class="fixed inset-0 bg-[#3d332c]/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+    <div id="modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
         <div class="nude-card w-full max-w-md p-6 rounded-2xl shadow-2xl relative space-y-4">
-            <div class="flex justify-between items-center border-b border-[#e6ded3] pb-3">
-                <h3 id="modalTitle" class="text-base font-bold text-[#3d332c]">Tambah Data Pakaian</h3>
-                <button onclick="closeModal()" class="text-[#8c7a6b] hover:text-[#3d332c]">✕</button>
+            <div class="flex justify-between items-center border-b border-[var(--border-color)] pb-3">
+                <h3 id="modalTitle" class="text-base font-bold">Tambah Data Pakaian</h3>
+                <button onclick="closeModal()" class="opacity-70 hover:opacity-100">✕</button>
             </div>
             
             <form id="itemForm" onsubmit="saveItem(event)" class="space-y-3.5">
                 <input type="hidden" id="itemId">
                 <div>
-                    <label class="block text-xs font-semibold text-[#6b5b52] mb-1">Nama Barang</label>
-                    <input type="text" id="itemName" required placeholder="Contoh: Kemeja Toyobo" class="w-full bg-white border border-[#dcd0c0] rounded-xl px-3.5 py-2 text-xs sm:text-sm text-[#3d332c] focus:outline-none focus:border-[#52796f]">
+                    <label class="block text-xs font-semibold mb-1">Nama Barang</label>
+                    <input type="text" id="itemName" required placeholder="Contoh: Kemeja Toyobo" class="w-full bg-white border border-[var(--border-color)] rounded-xl px-3.5 py-2 text-xs sm:text-sm focus:outline-none focus:border-[var(--primary)]">
                 </div>
 
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-xs font-semibold text-[#6b5b52] mb-1">Warna</label>
-                        <input type="text" id="itemColor" required placeholder="Contoh: Mocca" class="w-full bg-white border border-[#dcd0c0] rounded-xl px-3.5 py-2 text-xs sm:text-sm text-[#3d332c] focus:outline-none focus:border-[#52796f]">
+                        <label class="block text-xs font-semibold mb-1">Warna</label>
+                        <input type="text" id="itemColor" required placeholder="Contoh: Mocca" class="w-full bg-white border border-[var(--border-color)] rounded-xl px-3.5 py-2 text-xs sm:text-sm focus:outline-none focus:border-[var(--primary)]">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-[#6b5b52] mb-1">Ukuran</label>
-                        <input type="text" id="itemSize" required placeholder="S, M, L, XL" class="w-full bg-white border border-[#dcd0c0] rounded-xl px-3.5 py-2 text-xs sm:text-sm text-[#3d332c] focus:outline-none focus:border-[#52796f]">
+                        <label class="block text-xs font-semibold mb-1">Ukuran</label>
+                        <input type="text" id="itemSize" required placeholder="S, M, L, XL" class="w-full bg-white border border-[var(--border-color)] rounded-xl px-3.5 py-2 text-xs sm:text-sm focus:outline-none focus:border-[var(--primary)]">
                     </div>
                 </div>
 
                 <div>
-                    <label class="block text-xs font-semibold text-[#6b5b52] mb-1">Jumlah (Qty)</label>
-                    <input type="number" id="itemQty" min="1" required placeholder="15" class="w-full bg-white border border-[#dcd0c0] rounded-xl px-3.5 py-2 text-xs sm:text-sm text-[#3d332c] focus:outline-none focus:border-[#52796f]">
+                    <label class="block text-xs font-semibold mb-1">Jumlah (Qty)</label>
+                    <input type="number" id="itemQty" min="1" required placeholder="15" class="w-full bg-white border border-[var(--border-color)] rounded-xl px-3.5 py-2 text-xs sm:text-sm focus:outline-none focus:border-[var(--primary)]">
                 </div>
 
                 <div class="flex justify-end gap-2 pt-3">
-                    <button type="button" onclick="closeModal()" class="px-4 py-2 rounded-xl text-xs font-semibold text-[#8c7a6b] hover:bg-[#eee5dc]">Batal</button>
-                    <button type="submit" class="bg-[#52796f] hover:bg-[#3f5d54] text-white px-5 py-2 rounded-xl text-xs font-semibold shadow-md">Simpan</button>
+                    <button type="button" onclick="closeModal()" class="px-4 py-2 rounded-xl text-xs font-semibold opacity-70 hover:bg-black/5">Batal</button>
+                    <button type="submit" class="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white px-5 py-2 rounded-xl text-xs font-semibold shadow-md">Simpan</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- MODAL SCAN FOTO / OCR (GRATIS) -->
-    <div id="ocrModal" class="fixed inset-0 bg-[#3d332c]/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+    <!-- MODAL SCAN FOTO / OCR -->
+    <div id="ocrModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
         <div class="nude-card w-full max-w-lg p-6 rounded-2xl shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
-            <div class="flex justify-between items-center border-b border-[#e6ded3] pb-3">
-                <h3 class="text-base font-bold text-[#3d332c]">📷 Scan Foto Catatan / Screenshot</h3>
-                <button onclick="closeOcrModal()" class="text-[#8c7a6b] hover:text-[#3d332c]">✕</button>
+            <div class="flex justify-between items-center border-b border-[var(--border-color)] pb-3">
+                <h3 class="text-base font-bold">📷 Scan Foto Catatan / Screenshot</h3>
+                <button onclick="closeOcrModal()" class="opacity-70 hover:opacity-100">✕</button>
             </div>
 
-            <p class="text-xs text-[#8c7a6b]">Pilih foto catatan tangan atau screenshot data pakaian. AI Gratis akan membaca teksnya secara otomatis:</p>
+            <p class="text-xs opacity-70">Pilih foto catatan tangan atau screenshot data pakaian:</p>
 
             <div class="space-y-3">
-                <input type="file" id="ocrInput" accept="image/*" onchange="processOcrImage(event)" class="w-full text-xs text-[#5c4f44] file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-[#eee5dc] file:text-[#3d332c] hover:file:bg-[#dcd0c0] cursor-pointer">
+                <input type="file" id="ocrInput" accept="image/*" onchange="processOcrImage(event)" class="w-full text-xs file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-black/5 cursor-pointer">
                 
-                <div id="ocrStatus" class="hidden text-xs text-center py-2 bg-[#eee5dc]/50 rounded-xl text-[#52796f] font-semibold animate-pulse">
+                <div id="ocrStatus" class="hidden text-xs text-center py-2 bg-black/5 rounded-xl font-semibold animate-pulse">
                     ⏳ Membaca foto... Harap tunggu beberapa detik...
                 </div>
 
                 <div id="ocrResultBox" class="hidden space-y-2">
-                    <label class="block text-xs font-semibold text-[#6b5b52]">Hasil Teks Dibaca (Bisa Anda Koreksi):</label>
-                    <textarea id="ocrRawText" rows="4" class="w-full bg-white border border-[#dcd0c0] rounded-xl p-3 text-xs text-[#3d332c] focus:outline-none focus:border-[#52796f]" placeholder="Hasil teks akan muncul di sini..."></textarea>
+                    <label class="block text-xs font-semibold">Hasil Teks Dibaca:</label>
+                    <textarea id="ocrRawText" rows="4" class="w-full bg-white border border-[var(--border-color)] rounded-xl p-3 text-xs focus:outline-none focus:border-[var(--primary)]"></textarea>
                     
-                    <button onclick="convertTextToItems()" class="w-full bg-[#52796f] hover:bg-[#3f5d54] text-white py-2.5 rounded-xl text-xs font-semibold shadow-md">
+                    <button onclick="convertTextToItems()" class="w-full bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white py-2.5 rounded-xl text-xs font-semibold shadow-md">
                         ✨ Ekstrak & Tambahkan ke Tabel Otomatis
                     </button>
                 </div>
@@ -236,6 +244,14 @@
 
     <!-- Script Logika -->
     <script>
+        const themes = {
+            nude: { '--bg-main': '#f3efe9', '--card-bg': '#faf7f2', '--border-color': '#e6ded3', '--text-main': '#4a4039', '--primary': '#52796f', '--primary-hover': '#3f5d54', '--header-bg': 'rgba(238, 229, 220, 0.9)' },
+            espresso: { '--bg-main': '#2d2422', '--card-bg': '#3e3432', '--border-color': '#574845', '--text-main': '#f5ebd9', '--primary': '#b08968', '--primary-hover': '#9c7757', '--header-bg': 'rgba(62, 52, 50, 0.9)' },
+            sage: { '--bg-main': '#eef2ee', '--card-bg': '#f6f9f6', '--border-color': '#d0dcd0', '--text-main': '#2f3e35', '--primary': '#4a7c59', '--primary-hover': '#3a6345', '--header-bg': 'rgba(215, 228, 215, 0.9)' },
+            rose: { '--bg-main': '#f7f1f2', '--card-bg': '#fffbfc', '--border-color': '#e8d7dc', '--text-main': '#4a3b40', '--primary': '#a36b7d', '--primary-hover': '#8c586a', '--header-bg': 'rgba(240, 225, 230, 0.9)' },
+            dark: { '--bg-main': '#121212', '--card-bg': '#1e1e1e', '--border-color': '#333333', '--text-main': '#e0e0e0', '--primary': '#90caf9', '--primary-hover': '#64b5f6', '--header-bg': 'rgba(45, 45, 45, 0.9)' }
+        };
+
         const initialData = [
             { id: 1, name: "Kemeja Toyobo", color: "Mocca", size: "M", qty: 15 },
             { id: 2, name: "Kemeja Toyobo", color: "Mocca", size: "L", qty: 20 },
@@ -247,12 +263,27 @@
         let items = JSON.parse(localStorage.getItem('clothing_inventory')) || initialData;
         let savedTitle = localStorage.getItem('clothing_report_title') || "NAMA PEMILIK / BRAND";
         let sizePrices = JSON.parse(localStorage.getItem('clothing_size_prices')) || { "S": 4000, "M": 6000, "L": 7000, "XL": 8000 };
+        let currentTheme = localStorage.getItem('clothing_theme') || 'nude';
 
         document.getElementById('reportTitleInput').value = savedTitle;
+        document.getElementById('themeSelector').value = currentTheme;
+        applyTheme(currentTheme);
 
         const now = new Date();
         document.getElementById('currentDate').innerText = now.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
-        document.getElementById('currentTime').innerText = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+
+        function applyTheme(themeName) {
+            const theme = themes[themeName] || themes.nude;
+            const root = document.documentElement;
+            for (const [key, value] of Object.entries(theme)) {
+                root.style.setProperty(key, value);
+            }
+            localStorage.setItem('clothing_theme', themeName);
+        }
+
+        function changeTheme(val) {
+            applyTheme(val);
+        }
 
         function startApp() {
             const video = document.getElementById('bgVideo');
@@ -285,6 +316,7 @@
             localStorage.setItem('clothing_report_title', val);
         }
 
+        // PERBAIKAN: Harga hanya diproses dan disimpan saat selesai mengetik / kehilangan fokus (onchange)
         function updatePrice(size, val) {
             sizePrices[size.toUpperCase()] = parseFloat(val) || 0;
             localStorage.setItem('clothing_size_prices', JSON.stringify(sizePrices));
@@ -305,8 +337,8 @@
             priceInputsContainer.innerHTML = '';
 
             if (items.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="py-6 text-center text-xs text-[#8c7a6b]">Belum ada data pakaian.</td></tr>`;
-                sizeBreakdownList.innerHTML = `<span class="text-xs text-[#8c7a6b]">Belum ada data ukuran.</span>`;
+                tbody.innerHTML = `<tr><td colspan="5" class="py-6 text-center text-xs opacity-70">Belum ada data pakaian.</td></tr>`;
+                sizeBreakdownList.innerHTML = `<span class="text-xs opacity-70">Belum ada data ukuran.</span>`;
                 document.getElementById('grandTotalPrice').innerText = formatRupiah(0);
                 return;
             }
@@ -319,16 +351,16 @@
                 sizeTotals[upperSize] = (sizeTotals[upperSize] || 0) + qty;
 
                 const tr = document.createElement('tr');
-                tr.className = 'hover:bg-[#eee5dc]/40 transition-colors';
+                tr.className = 'hover:bg-black/5 transition-colors';
                 tr.innerHTML = `
-                    <td class="py-3 px-4 font-semibold text-[#3d332c]">${item.name}</td>
-                    <td class="py-3 px-4 text-[#5c4f44]">${item.color}</td>
-                    <td class="py-3 px-4 text-center font-medium text-[#5c4f44]">${item.size}</td>
-                    <td class="py-3 px-4 text-center font-bold text-[#52796f]">${item.qty} pcs</td>
+                    <td class="py-3 px-4 font-semibold">${item.name}</td>
+                    <td class="py-3 px-4 opacity-85">${item.color}</td>
+                    <td class="py-3 px-4 text-center font-medium">${item.size}</td>
+                    <td class="py-3 px-4 text-center font-bold text-[var(--primary)]">${item.qty} pcs</td>
                     <td class="py-3 px-4 text-right action-col">
                         <div class="flex items-center justify-end gap-1.5">
-                            <button onclick="editItem(${item.id})" class="text-[#8c7a6b] hover:text-[#52796f] p-1" title="Edit">✏️</button>
-                            <button onclick="deleteItem(${item.id})" class="text-[#8c7a6b] hover:text-rose-600 p-1" title="Hapus">🗑️</button>
+                            <button onclick="editItem(${item.id})" class="opacity-70 hover:opacity-100 p-1" title="Edit">✏️</button>
+                            <button onclick="deleteItem(${item.id})" class="opacity-70 hover:text-rose-600 p-1" title="Hapus">🗑️</button>
                         </div>
                     </td>
                 `;
@@ -344,15 +376,16 @@
                 grandTotal += subTotal;
 
                 const badge = document.createElement('div');
-                badge.className = 'bg-white border border-[#dcd0c0] px-3 py-1.5 rounded-lg shadow-sm flex items-center justify-between sm:justify-start gap-3';
-                badge.innerHTML = `<span><strong>${size}</strong> : <span class="text-[#52796f] font-bold">${total} pcs</span></span>`;
+                badge.className = 'bg-white border border-[var(--border-color)] px-3 py-1.5 rounded-lg shadow-sm flex items-center justify-between sm:justify-start gap-3 text-[var(--text-main)]';
+                badge.innerHTML = `<span><strong>${size}</strong> : <span class="text-[var(--primary)] font-bold">${total} pcs</span></span>`;
                 sizeBreakdownList.appendChild(badge);
 
                 const priceDiv = document.createElement('div');
-                priceDiv.className = 'bg-white border border-[#dcd0c0] p-2.5 rounded-xl space-y-1';
+                priceDiv.className = 'bg-white border border-[var(--border-color)] p-2.5 rounded-xl space-y-1 text-[var(--text-main)]';
+                // Menggunakan onchange agar kalkulasi baru berjalan saat selesai mengetik, bukan setiap satu huruf/angka diketik
                 priceDiv.innerHTML = `
-                    <label class="block text-[10px] font-bold text-[#6b5b52]">Harga Satuan (${size})</label>
-                    <input type="number" min="0" value="${unitPrice}" oninput="updatePrice('${size}', this.value)" class="w-full bg-[#faf7f2] border border-[#dcd0c0] rounded-lg px-2 py-1 text-xs font-semibold text-[#3d332c] focus:outline-none focus:border-[#52796f]">
+                    <label class="block text-[10px] font-bold">Harga Satuan (${size})</label>
+                    <input type="number" min="0" value="${unitPrice}" onchange="updatePrice('${size}', this.value)" class="w-full bg-black/5 border border-[var(--border-color)] rounded-lg px-2 py-1 text-xs font-semibold focus:outline-none focus:border-[var(--primary)]">
                     <p class="text-[9px] text-emerald-700 font-bold">Subtotal: ${formatRupiah(subTotal)}</p>
                 `;
                 priceInputsContainer.appendChild(priceDiv);
@@ -422,7 +455,6 @@
             }
         }
 
-        /* LOGIKA SCAN OCR GRATIS */
         function openOcrModal() {
             document.getElementById('ocrModal').classList.remove('hidden');
             document.getElementById('ocrInput').value = '';
@@ -467,7 +499,6 @@
                 const cleanLine = line.trim();
                 if (!cleanLine) return;
 
-                // Memisahkan kata berdasarkan spasi/koma/strip
                 const parts = cleanLine.split(/[\s,|-]+/);
                 if (parts.length >= 2) {
                     const qtyMatch = cleanLine.match(/\d+/);
@@ -493,7 +524,7 @@
                 closeOcrModal();
                 alert(`Berhasil menambahkan ${addedCount} data dari hasil scan foto!`);
             } else {
-                alert("Tidak ada pola data yang terbaca. Coba rapikan teks hasil scan secara manual di kotak teks.");
+                alert("Tidak ada pola data yang terbaca. Coba rapikan teks hasil scan secara manual.");
             }
         }
 
@@ -504,12 +535,12 @@
             const priceSection = document.getElementById('webOnlyPriceSection');
             
             if (priceSection) priceSection.style.display = 'none';
-            titleInput.classList.remove('focus:border-b', 'focus:border-[#52796f]');
+            titleInput.classList.remove('focus:border-b', 'focus:border-[var(--primary)]');
             actionCols.forEach(el => el.style.display = 'none');
             card.classList.add('export-mode');
 
             html2canvas(card, {
-                backgroundColor: '#faf7f2',
+                backgroundColor: getComputedStyle(document.documentElement).getPropertyValue('--card-bg').trim(),
                 scale: 3,
                 useCORS: true,
                 logging: false
@@ -521,7 +552,7 @@
 
                 if (priceSection) priceSection.style.display = '';
                 card.classList.remove('export-mode');
-                titleInput.classList.add('focus:border-b', 'focus:border-[#52796f]');
+                titleInput.classList.add('focus:border-b', 'focus:border-[var(--primary)]');
                 actionCols.forEach(el => el.style.display = '');
             });
         }

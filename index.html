@@ -236,9 +236,7 @@
 
     <!-- Script Logika -->
     <script>
-        const initialData = [
-            
-        ];
+        const initialData = [];
 
         let items = JSON.parse(localStorage.getItem('clothing_inventory')) || initialData;
         let savedTitle = localStorage.getItem('clothing_report_title') || "NAMI";
@@ -281,10 +279,33 @@
             localStorage.setItem('clothing_report_title', val);
         }
 
-        function updatePrice(size, val) {
-            sizePrices[size.toUpperCase()] = parseFloat(val) || 0;
+        // DIPERBAIKI: Kalkulator harga satuan menggunakan handlePriceInput agar keyboard HP tidak tertutup/turun saat mengetik
+        function handlePriceInput(size, inputEl) {
+            const val = parseFloat(inputEl.value) || 0;
+            sizePrices[size.toUpperCase()] = val;
             localStorage.setItem('clothing_size_prices', JSON.stringify(sizePrices));
-            renderTable();
+            
+            calculateGrandTotal();
+        }
+
+        function calculateGrandTotal() {
+            let sizeTotals = {};
+            items.forEach(item => {
+                const upperSize = item.size.trim().toUpperCase();
+                const qty = parseInt(item.qty) || 0;
+                sizeTotals[upperSize] = (sizeTotals[upperSize] || 0) + qty;
+            });
+
+            let grandTotal = 0;
+            for (let [size, total] of Object.entries(sizeTotals)) {
+                const unitPrice = sizePrices[size] || 0;
+                const subTotal = total * unitPrice;
+                grandTotal += subTotal;
+                
+                const subEl = document.getElementById(`subtotal-${size}`);
+                if (subEl) subEl.innerText = `Subtotal: ${formatRupiah(subTotal)}`;
+            }
+            document.getElementById('grandTotalPrice').innerText = formatRupiah(grandTotal);
         }
 
         function formatRupiah(angka) {
@@ -331,13 +352,10 @@
                 tbody.appendChild(tr);
             });
 
-            let grandTotal = 0;
-
             for (let [size, total] of Object.entries(sizeTotals)) {
                 if (!(size in sizePrices)) sizePrices[size] = 0;
                 const unitPrice = sizePrices[size];
                 const subTotal = total * unitPrice;
-                grandTotal += subTotal;
 
                 const badge = document.createElement('div');
                 badge.className = 'bg-white border border-[#dcd0c0] px-3 py-1.5 rounded-lg shadow-sm flex items-center justify-between sm:justify-start gap-3';
@@ -348,13 +366,13 @@
                 priceDiv.className = 'bg-white border border-[#dcd0c0] p-2.5 rounded-xl space-y-1';
                 priceDiv.innerHTML = `
                     <label class="block text-[10px] font-bold text-[#6b5b52]">Harga Satuan (${size})</label>
-                    <input type="number" min="0" value="${unitPrice}" oninput="updatePrice('${size}', this.value)" class="w-full bg-[#faf7f2] border border-[#dcd0c0] rounded-lg px-2 py-1 text-xs font-semibold text-[#3d332c] focus:outline-none focus:border-[#52796f]">
-                    <p class="text-[9px] text-emerald-700 font-bold">Subtotal: ${formatRupiah(subTotal)}</p>
+                    <input type="number" min="0" value="${unitPrice}" oninput="handlePriceInput('${size}', this)" class="w-full bg-[#faf7f2] border border-[#dcd0c0] rounded-lg px-2 py-1 text-xs font-semibold text-[#3d332c] focus:outline-none focus:border-[#52796f]">
+                    <p id="subtotal-${size}" class="text-[9px] text-emerald-700 font-bold">Subtotal: ${formatRupiah(subTotal)}</p>
                 `;
                 priceInputsContainer.appendChild(priceDiv);
             }
 
-            document.getElementById('grandTotalPrice').innerText = formatRupiah(grandTotal);
+            calculateGrandTotal();
         }
 
         function openModal(mode, id = null) {
@@ -463,7 +481,6 @@
                 const cleanLine = line.trim();
                 if (!cleanLine) return;
 
-                // Memisahkan kata berdasarkan spasi/koma/strip
                 const parts = cleanLine.split(/[\s,|-]+/);
                 if (parts.length >= 2) {
                     const qtyMatch = cleanLine.match(/\d+/);

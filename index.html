@@ -1,1125 +1,845 @@
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Laporan Data Pakaian</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#f4eee3">
+<title>Laporan Data Pakaian</title>
 
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Plus Jakarta Sans', 'sans-serif']
-                    }
-                }
-            }
-        };
-    </script>
-
-    <style>
-        body {
-            background-color: #f3efe9;
-            background-image:
-                radial-gradient(at 0% 0%, rgba(220, 210, 198, 0.4) 0px, transparent 50%),
-                radial-gradient(at 100% 100%, rgba(205, 193, 179, 0.4) 0px, transparent 50%);
-            background-attachment: fixed;
-            color: #4a4039;
-        }
-
-        .nude-card {
-            background: #faf7f2;
-            border: 1px solid #e6ded3;
-            box-shadow: 0 10px 30px -5px rgba(139, 120, 104, 0.08);
-        }
-
-        .export-mode {
-            width: 750px !important;
-            max-width: none !important;
-            padding: 40px !important;
-            border-radius: 20px !important;
-            background: #faf7f2 !important;
-        }
-
-        .custom-table {
-            border-collapse: separate;
-            border-spacing: 0;
-            border: 1px solid #e6ded3;
-            border-radius: 12px;
-            overflow: hidden;
-        }
-
-        .custom-table th,
-        .custom-table td {
-            border-left: 1px solid #e6ded3;
-            border-right: 1px solid #e6ded3;
-        }
-
-        button {
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        input, textarea, button {
-            font-family: inherit;
-        }
-
-        #ocrModal, #modal {
-            overscroll-behavior: contain;
-        }
-    </style>
+<style>
+:root {
+  --cream:#f5efe4;
+  --paper:#fffdf8;
+  --brown:#75543c;
+  --dark:#3d3027;
+  --green:#71856b;
+  --line:#e4d8c7;
+  --muted:#82776b;
+  --danger:#a7473e;
+}
+* {box-sizing:border-box}
+body {
+  margin:0;background:var(--cream);color:var(--dark);
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif
+}
+button,input {font:inherit}
+button {
+  cursor:pointer;border:0;border-radius:12px;padding:11px 14px;
+  background:var(--brown);color:white;font-weight:650
+}
+button.secondary {background:#e8dfd2;color:var(--dark)}
+button.green {background:var(--green)}
+button.danger {background:var(--danger)}
+button:disabled {opacity:.5;cursor:not-allowed}
+.hidden {display:none!important}
+.muted {color:var(--muted);font-size:.84rem}
+.status {margin-top:10px;font-size:.88rem;white-space:pre-wrap;line-height:1.5}
+.actions {display:flex;flex-wrap:wrap;gap:8px}
+.field-grid {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.field {display:flex;flex-direction:column;gap:5px}
+.field label {font-size:.82rem;color:var(--muted);font-weight:650}
+.field input {
+  width:100%;padding:11px;border:1px solid var(--line);
+  border-radius:10px;background:#fffdf9;color:var(--dark);min-width:0
+}
+.full {grid-column:1/-1}
+header {
+  padding:20px 16px 12px;max-width:1000px;margin:auto;
+  display:flex;justify-content:space-between;align-items:center;gap:12px
+}
+header h1 {font-size:1.2rem;margin:0}
+header p {font-size:.84rem;color:var(--muted);margin:4px 0 0}
+.brand-mark {
+  background:#e4d8c7;color:var(--brown);padding:10px;
+  border-radius:14px;font-size:1.25rem
+}
+main {max-width:1000px;margin:auto;padding:8px 14px 40px}
+.panel {
+  background:var(--paper);border:1px solid var(--line);
+  border-radius:18px;padding:16px;margin-bottom:14px;
+  box-shadow:0 4px 18px #59442b0a
+}
+.panel h2 {font-size:1.05rem;margin:0 0 12px}
+.statrow {display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.stat {background:#f0e8dc;border-radius:12px;padding:10px 13px;flex:1;min-width:100px}
+.stat strong {display:block;font-size:1.25rem}
+.stat span {font-size:.76rem;color:var(--muted)}
+.table-wrap {overflow-x:auto;border-radius:12px;border:1px solid var(--line)}
+table {border-collapse:collapse;width:100%;min-width:620px;background:#fffdf8}
+th,td {padding:11px 10px;text-align:left;border-bottom:1px solid var(--line);font-size:.88rem}
+th {background:#e8e0d2;color:#4a3a2d;font-weight:750}
+tbody tr:nth-child(even) {background:#f8f3e9}
+tbody tr:last-child td {border-bottom:0}
+.small-actions {display:flex;gap:6px}
+.small-actions button {padding:7px 9px;font-size:.78rem}
+.empty {text-align:center;padding:28px;color:var(--muted)}
+.modal {
+  position:fixed;inset:0;background:#241d17a8;z-index:20;
+  display:grid;place-items:center;padding:16px
+}
+.modal-card {
+  width:min(560px,100%);max-height:90vh;overflow:auto;
+  background:var(--paper);border-radius:18px;padding:18px
+}
+.modal-head {display:flex;justify-content:space-between;align-items:center;gap:10px}
+.modal-head h2 {margin:0;font-size:1.1rem}
+.modal-head button {padding:7px 11px}
+.preview {
+  width:100%;max-height:260px;object-fit:contain;
+  background:#eee4d7;border-radius:12px;margin-top:12px
+}
+.notice {
+  padding:10px 12px;background:#f0e8dc;border-radius:10px;
+  color:#574638;font-size:.84rem;line-height:1.5;margin-top:12px
+}
+.footer {text-align:center;color:var(--muted);font-size:.78rem;padding:10px}
+#intro {
+  position:fixed;inset:0;z-index:10;background:#2e2b25;color:#fff;
+  display:grid;place-items:center;text-align:center;overflow:hidden
+}
+#intro video {position:absolute;width:100%;height:100%;object-fit:cover;opacity:.55}
+#intro .veil {
+  position:absolute;inset:0;
+  background:linear-gradient(135deg,#30291fb5,#1f3528a8)
+}
+#intro .intro-content {position:relative;padding:28px;max-width:420px}
+#intro h1 {font-size:clamp(2.2rem,10vw,3.5rem);letter-spacing:.08em;margin:0}
+#intro p {color:#f2e7d6;line-height:1.6}
+#intro button {margin-top:16px;background:#f4eee3;color:#49392c;padding:14px 28px}
+@media(min-width:700px) {
+  .field-grid {grid-template-columns:repeat(4,minmax(0,1fr))}
+  header {padding-top:28px}
+  main {padding-top:12px}
+  .panel {padding:20px}
+}
+</style>
 </head>
 
-<body class="min-h-screen font-sans pb-24">
+<body>
 
-    <!-- HALAMAN PEMBUKA -->
-    <div id="landingPage"
-         class="fixed inset-0 z-50 flex items-center justify-center overflow-hidden transition-opacity duration-700 bg-black">
+<section id="intro">
+  <video autoplay muted loop playsinline>
+    <source src="assets/bg.mp4" type="video/mp4">
+  </video>
+  <div class="veil"></div>
+  <div class="intro-content">
+    <h1>DATA<br>PAKAIAN</h1>
+    <p>Catat, rapikan, dan simpan laporan inventaris pakaian dalam satu tempat.</p>
+    <button id="startBtn">Mulai →</button>
+    <p class="muted">Video dan audio pembuka menggunakan folder assets.</p>
+  </div>
+</section>
 
-        <video id="bgVideo"
-               class="absolute inset-0 w-full h-full object-cover"
-               muted playsinline preload="auto" loop>
-            <source src="assets/bg.mp4" type="video/mp4">
-        </video>
+<audio id="startAudio" src="assets/bg.mp3" preload="auto"></audio>
 
-        <div class="absolute inset-0 bg-black/10"></div>
+<header>
+  <div style="display:flex;align-items:center;gap:12px">
+    <div class="brand-mark">▦</div>
+    <div>
+      <h1>Laporan Data Pakaian</h1>
+      <p>Inventaris sederhana • krem, cokelat, hijau</p>
+    </div>
+  </div>
+  <button class="secondary" id="homeBtn">Beranda</button>
+</header>
 
-        <!-- Area tombol mulai yang tidak terlihat -->
-        <button onclick="startApp()"
-                class="absolute z-20 cursor-pointer opacity-0"
-                style="top:15%;left:30%;width:40%;height:15%;"
-                aria-label="Mulai aplikasi">
-            Mulai
-        </button>
+<main>
+  <section class="panel">
+    <h2>Ringkasan</h2>
+    <div class="statrow">
+      <div class="stat"><strong id="rowCount">0</strong><span>Baris data</span></div>
+      <div class="stat"><strong id="qtyCount">0</strong><span>Total jumlah</span></div>
+      <div class="stat"><strong id="colorCount">0</strong><span>Warna berbeda</span></div>
+    </div>
+    <div class="actions">
+      <button id="addBtn">＋ Tambah data</button>
+      <button class="green" id="scanBtn">▧ Baca foto dengan Gemini</button>
+      <button class="secondary" id="jsonBtn">Unduh JSON</button>
+      <button class="secondary" id="pngBtn">Unduh PNG</button>
+      <button class="secondary" id="historyBtn">Riwayat</button>
+      <button class="secondary" id="clearBtn">Kosongkan tabel</button>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>Data Pakaian</h2>
+    <div class="field-grid" style="margin-bottom:12px">
+      <div class="field full">
+        <label for="reportTitle">Judul laporan</label>
+        <input id="reportTitle" value="Laporan Data Pakaian">
+      </div>
+      <div class="field full">
+        <label for="searchInput">Cari data</label>
+        <input id="searchInput" placeholder="Cari nama barang, warna, atau ukuran...">
+      </div>
     </div>
 
-    <!-- SUARA PEMBUKA -->
-    <audio id="clickSound" preload="auto">
-        <source src="assets/bg.mp3" type="audio/mpeg">
-    </audio>
-
-    <!-- APLIKASI UTAMA -->
-    <main id="mainApp"
-          class="opacity-0 transition-opacity duration-1000 max-w-3xl mx-auto p-3 sm:p-6 md:p-10 space-y-6 hidden">
-
-        <!-- KARTU LAPORAN -->
-        <section id="reportCard"
-                 class="nude-card p-5 sm:p-8 rounded-2xl sm:rounded-3xl space-y-6 relative overflow-hidden">
-
-            <!-- JUDUL DAN TOMBOL -->
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-5 border-b border-[#e6ded3]">
-
-                <div class="flex-1 w-full">
-                    <input type="text"
-                           id="reportTitleInput"
-                           value="NAMA"
-                           oninput="saveReportTitle(this.value)"
-                           class="w-full bg-transparent font-extrabold text-xl sm:text-3xl tracking-tight text-[#3d332c] focus:outline-none focus:border-b focus:border-[#52796f] transition-all"
-                           title="Klik untuk mengubah nama laporan">
-                </div>
-
-                <div class="flex flex-wrap items-center gap-2.5 w-full sm:w-auto justify-between sm:justify-end">
-
-                    <div class="bg-[#eee5dc]/60 border border-[#dcd0c0]/60 px-3 py-1.5 rounded-xl text-xs space-y-0.5 text-[#6b5b52] shrink-0">
-                        <div class="flex items-center gap-1.5">
-                            <span class="text-[#8c7a6b]">Tanggal:</span>
-                            <strong id="currentDate" class="text-[#3d332c]"></strong>
-                        </div>
-                        <div class="flex items-center gap-1.5">
-                            <span class="text-[#8c7a6b]">Waktu:</span>
-                            <strong id="currentTime" class="text-[#3d332c]"></strong>
-                        </div>
-                    </div>
-
-                    <button onclick="openOcrModal()"
-                            class="action-col bg-[#8c7a6b] hover:bg-[#6b5b52] text-white px-3 py-2 rounded-xl text-xs font-semibold transition-all shadow-md flex items-center gap-1 shrink-0">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                  d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                  d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
-                        </svg>
-                        <span>Sken foto AI</span>
-                    </button>
-
-                    <button onclick="openModal('add')"
-                            class="action-col bg-[#52796f] hover:bg-[#3f5d54] text-white px-3 py-2 rounded-xl text-xs font-semibold transition-all shadow-md flex items-center gap-1 shrink-0">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                  d="M12 4v16m8-8H4"/>
-                        </svg>
-                        <span>Tambah data</span>
-                    </button>
-
-                </div>
-            </div>
-
-            <!-- TABEL INVENTARIS -->
-            <div class="overflow-x-auto">
-                <table class="w-full text-left text-xs sm:text-sm custom-table">
-                    <thead>
-                        <tr class="bg-[#eee5dc]/90 text-[#6b5b52] border-b border-[#dcd0c0]">
-                            <th class="py-3.5 px-4 font-semibold">Nama barang</th>
-                            <th class="py-3.5 px-4 font-semibold">Warna</th>
-                            <th class="py-3.5 px-4 font-semibold text-center">Ukuran</th>
-                            <th class="py-3.5 px-4 font-semibold text-center">Jumlah (Qty)</th>
-                            <th class="py-3.5 px-4 font-semibold text-right action-col">Aksi</th>
-                        </tr>
-                    </thead>
-
-                    <tbody id="inventoryList" class="divide-y divide-[#e6ded3]"></tbody>
-                </table>
-            </div>
-
-            <!-- TOTAL PER UKURAN -->
-            <div id="sizeSummaryBox"
-                 class="bg-[#eee5dc]/40 border border-[#dcd0c0] p-4 rounded-xl space-y-2 text-xs text-[#5c4f44]">
-
-                <div class="flex justify-between items-center">
-                    <p class="font-bold text-[#3d332c]">Jumlah total per ukuran:</p>
-                </div>
-
-                <div id="sizeBreakdownList"
-                     class="grid grid-cols-2 sm:flex sm:flex-wrap gap-2.5"></div>
-            </div>
-
-        </section>
-
-        <!-- KALKULATOR HARGA -->
-        <section id="webOnlyPriceSection"
-                 class="nude-card p-4 sm:p-5 rounded-2xl space-y-3">
-
-            <div class="flex justify-between items-center border-b border-[#e6ded3] pb-2">
-                <h3 class="text-xs sm:text-sm font-bold text-[#3d332c]">
-                    Kalkulator perkiraan biaya
-                </h3>
-                <span class="text-[10px] bg-[#52796f]/10 text-[#52796f] px-2 py-0.5 rounded-full font-semibold">
-                    Tidak ikut PNG
-                </span>
-            </div>
-
-            <p class="text-[11px] text-[#8c7a6b]">
-                Jumlah dihitung otomatis berdasarkan ukuran.
-            </p>
-
-            <div id="priceInputsContainer"
-                 class="grid grid-cols-2 sm:grid-cols-4 gap-2.5"></div>
-
-            <div class="pt-2 border-t border-[#e6ded3] flex justify-between items-center text-xs sm:text-sm font-bold text-[#3d332c]">
-                <span>Perkiraan total:</span>
-                <span id="grandTotalPrice" class="text-emerald-700 text-sm sm:text-base">Rp 0</span>
-            </div>
-        </section>
-
-        <!-- TOMBOL BAGIAN BAWAH -->
-        <div class="grid grid-cols-2 gap-3">
-
-            <button onclick="downloadPNG()"
-                    class="bg-[#52796f] hover:bg-[#3f5d54] text-white p-3.5 rounded-2xl text-xs sm:text-sm font-semibold transition-all shadow-md flex items-center justify-center gap-2">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
-                </svg>
-                Unduh laporan PNG
-            </button>
-
-            <button onclick="resetData()"
-                    class="bg-[#e6ded3]/50 hover:bg-[#dcd0c0]/70 text-[#6b5b52] border border-[#dcd0c0] p-3.5 rounded-2xl text-xs sm:text-sm font-semibold transition-all flex items-center justify-center gap-2">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M4 4v5h.582m15.356 2A8.001 8.001 0 014.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-                </svg>
-                Reset data
-            </button>
-
-        </div>
-    </main>
-
-    <!-- MODAL TAMBAH / EDIT -->
-    <div id="modal"
-         class="fixed inset-0 bg-[#3d332c]/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
-
-        <div class="nude-card w-full max-w-md p-6 rounded-2xl shadow-2xl relative space-y-4">
-
-            <div class="flex justify-between items-center border-b border-[#e6ded3] pb-3">
-                <h3 id="modalTitle" class="text-base font-bold text-[#3d332c]">Tambah Data</h3>
-                <button onclick="closeModal()" class="text-[#8c7a6b] hover:text-[#3d332c]">✕</button>
-            </div>
-
-            <form id="itemForm" onsubmit="saveItem(event)" class="space-y-3.5">
-                <input type="hidden" id="itemId">
-
-                <div>
-                    <label class="block text-xs font-semibold text-[#6b5b52] mb-1">Nama barang</label>
-                    <input type="text" id="itemName" required
-                           placeholder="Contoh: baju koko"
-                           class="w-full bg-white border border-[#dcd0c0] rounded-xl px-3.5 py-2 text-xs sm:text-sm text-[#3d332c] focus:outline-none focus:border-[#52796f]">
-                </div>
-
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-xs font-semibold text-[#6b5b52] mb-1">Warna</label>
-                        <input type="text" id="itemColor" required
-                               placeholder="Contoh: hitam"
-                               class="w-full bg-white border border-[#dcd0c0] rounded-xl px-3.5 py-2 text-xs sm:text-sm text-[#3d332c] focus:outline-none focus:border-[#52796f]">
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-semibold text-[#6b5b52] mb-1">Ukuran</label>
-                        <input type="text" id="itemSize" required
-                               placeholder="S, M, L, XL"
-                               class="w-full bg-white border border-[#dcd0c0] rounded-xl px-3.5 py-2 text-xs sm:text-sm text-[#3d332c] focus:outline-none focus:border-[#52796f]">
-                    </div>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-semibold text-[#6b5b52] mb-1">Jumlah</label>
-                    <input type="number" id="itemQty" min="1" step="1" required
-                           placeholder="0"
-                           class="w-full bg-white border border-[#dcd0c0] rounded-xl px-3.5 py-2 text-xs sm:text-sm text-[#3d332c] focus:outline-none focus:border-[#52796f]">
-                </div>
-
-                <div class="flex justify-end gap-2 pt-3">
-                    <button type="button" onclick="closeModal()"
-                            class="px-4 py-2 rounded-xl text-xs font-semibold text-[#8c7a6b] hover:bg-[#eee5dc]">
-                        Batal
-                    </button>
-
-                    <button type="submit"
-                            class="bg-[#52796f] hover:bg-[#3f5d54] text-white px-5 py-2 rounded-xl text-xs font-semibold shadow-md">
-                        Simpan
-                    </button>
-                </div>
-            </form>
-        </div>
+    <div id="exportArea">
+      <h2 id="exportTitle" style="text-align:center;margin:8px 0 14px">
+        Laporan Data Pakaian
+      </h2>
+      <div class="table-wrap">
+        <table id="inventoryTable">
+          <thead>
+            <tr>
+              <th>No.</th><th>Nama Barang</th><th>Warna</th>
+              <th>Ukuran</th><th>Jumlah</th><th class="actionCol">Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
     </div>
+    <p class="muted">Data tersimpan pada browser perangkat ini. Penyimpanan lintas perangkat memerlukan database online.</p>
+  </section>
 
-    <!-- MODAL SCAN FOTO GEMINI -->
-    <div id="ocrModal"
-         class="fixed inset-0 bg-[#3d332c]/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+  <div class="footer">Laporan Data Pakaian</div>
+</main>
 
-        <div class="nude-card w-full max-w-lg p-6 rounded-2xl shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
-
-            <div class="flex justify-between items-center border-b border-[#e6ded3] pb-3">
-                <h3 class="text-base font-bold text-[#3d332c]">Scan foto dengan Gemini AI</h3>
-                <button onclick="closeOcrModal()" class="text-[#8c7a6b] hover:text-[#3d332c]">✕</button>
-            </div>
-
-            <p class="text-xs text-[#8c7a6b]">
-                Pilih foto catatan atau tabel inventaris pakaian. Gemini akan mencoba membaca nama barang, warna, ukuran, dan jumlahnya.
-            </p>
-
-            <div class="space-y-3">
-                <input type="file"
-                       id="ocrInput"
-                       accept="image/*"
-                       onchange="processOcrImage(event)"
-                       class="w-full text-xs text-[#5c4f44] file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-[#eee5dc] file:text-[#3d332c] hover:file:bg-[#dcd0c0] cursor-pointer">
-
-                <p class="text-[11px] text-[#8c7a6b]">
-                    Maksimal 5 MB per foto. Periksa kembali hasil scan sebelum menambahkan ke tabel.
-                </p>
-
-                <div id="ocrStatus"
-                     role="status"
-                     aria-live="polite"
-                     class="hidden text-xs text-center py-3 bg-[#eee5dc]/50 rounded-xl text-[#52796f] font-semibold">
-                    Gemini sedang membaca foto...
-                </div>
-
-                <div id="ocrResultBox" class="hidden space-y-2">
-                    <label for="ocrRawText" class="block text-xs font-semibold text-[#6b5b52]">
-                        Periksa hasil JSON. Kamu bisa mengeditnya sebelum disimpan.
-                    </label>
-
-                    <textarea id="ocrRawText"
-                              rows="8"
-                              spellcheck="false"
-                              class="w-full bg-white border border-[#dcd0c0] rounded-xl p-3 text-xs text-[#3d332c] focus:outline-none focus:border-[#52796f]"
-                              placeholder="Hasil scan akan muncul di sini..."></textarea>
-
-                    <button onclick="convertTextToItems()"
-                            class="w-full bg-[#52796f] hover:bg-[#3f5d54] text-white py-2.5 rounded-xl text-xs font-semibold shadow-md">
-                        Tambahkan hasil ke tabel
-                    </button>
-                </div>
-            </div>
-        </div>
+<div id="editModal" class="modal hidden">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h2 id="formTitle">Tambah data</h2>
+      <button class="secondary" data-close="editModal">✕</button>
     </div>
-
-    <!-- LOGIKA APLIKASI -->
-    <script>
-        "use strict";
-
-        // ============================================
-        // PENGATURAN GEMINI API
-        // ============================================
-
-        // Untuk percobaan saja.
-        // API key di file HTML publik dapat dilihat orang lain.
-        // Ganti nilai di bawah dengan API key Gemini kamu.
-        const GEMINI_API_KEY = "AQ.Ab8RN6J0Za7EPiDg9Atj8PH3lQXee9Q02zPX4-2XkbZuQCStqA";
-
-        // Jika model ini tidak tersedia pada akun kamu,
-        // pilih model vision yang tersedia di Google AI Studio.
-        const GEMINI_MODEL = "gemini-2.5-flash";
-
-        // ============================================
-        // PENYIMPANAN DATA
-        // ============================================
-
-        const initialData = [];
-
-        function readLocalJSON(key, fallback) {
-            try {
-                const value = localStorage.getItem(key);
-                return value ? JSON.parse(value) : fallback;
-            } catch (error) {
-                console.warn("Data lokal tidak dapat dibaca:", key, error);
-                return fallback;
-            }
-        }
-
-        let items = readLocalJSON("clothing_inventory", initialData);
-
-        if (!Array.isArray(items)) {
-            items = [];
-        }
-
-        let savedTitle = localStorage.getItem("clothing_report_title") || "NAMA";
-
-        let sizePrices = readLocalJSON("clothing_size_prices", {
-            "S": 4000,
-            "M": 6000,
-            "L": 7000,
-            "XL": 8000
-        });
-
-        if (!sizePrices || typeof sizePrices !== "object" || Array.isArray(sizePrices)) {
-            sizePrices = { "S": 4000, "M": 6000, "L": 7000, "XL": 8000 };
-        }
-
-        document.getElementById("reportTitleInput").value = savedTitle;
-
-        const now = new Date();
-
-        document.getElementById("currentDate").innerText =
-            now.toLocaleDateString("id-ID", {
-                day: "numeric",
-                month: "long",
-                year: "numeric"
-            });
-
-        document.getElementById("currentTime").innerText =
-            now.toLocaleTimeString("id-ID", {
-                hour: "2-digit",
-                minute: "2-digit"
-            });
-
-        // ============================================
-        // HALAMAN PEMBUKA
-        // ============================================
-
-        function startApp() {
-            const video = document.getElementById("bgVideo");
-            const sound = document.getElementById("clickSound");
-            const landing = document.getElementById("landingPage");
-            const mainApp = document.getElementById("mainApp");
-
-            if (video) {
-                video.play().catch(error => console.log("Video tidak dapat diputar:", error));
-            }
-
-            if (sound) {
-                sound.currentTime = 0;
-                sound.play().catch(error => console.log("Audio tidak dapat diputar:", error));
-            }
-
-            landing.style.opacity = "0";
-
-            setTimeout(() => {
-                landing.style.display = "none";
-                mainApp.classList.remove("hidden");
-
-                setTimeout(() => {
-                    mainApp.style.opacity = "1";
-                }, 50);
-            }, 700);
-        }
-
-        // ============================================
-        // SIMPAN DATA
-        // ============================================
-
-        function saveStorage() {
-            try {
-                localStorage.setItem("clothing_inventory", JSON.stringify(items));
-            } catch (error) {
-                alert("Data gagal disimpan di perangkat. Periksa ruang penyimpanan browser.");
-                console.error(error);
-            }
-        }
-
-        function saveReportTitle(value) {
-            savedTitle = value;
-
-            try {
-                localStorage.setItem("clothing_report_title", value);
-            } catch (error) {
-                console.error("Judul gagal disimpan:", error);
-            }
-        }
-
-        // ============================================
-        // KALKULATOR HARGA
-        // ============================================
-
-        function handlePriceInput(size, inputElement) {
-            const value = Math.max(0, Number(inputElement.value) || 0);
-
-            sizePrices[size.toUpperCase()] = value;
-
-            try {
-                localStorage.setItem("clothing_size_prices", JSON.stringify(sizePrices));
-            } catch (error) {
-                console.error("Harga gagal disimpan:", error);
-            }
-
-            calculateGrandTotal();
-        }
-
-        function formatRupiah(value) {
-            return new Intl.NumberFormat("id-ID", {
-                style: "currency",
-                currency: "IDR",
-                maximumFractionDigits: 0
-            }).format(value);
-        }
-
-        function calculateGrandTotal() {
-            const sizeTotals = {};
-
-            items.forEach(item => {
-                const size = String(item.size || "-").trim().toUpperCase();
-                const qty = parseInt(item.qty, 10) || 0;
-
-                sizeTotals[size] = (sizeTotals[size] || 0) + qty;
-            });
-
-            let grandTotal = 0;
-
-            for (const [size, total] of Object.entries(sizeTotals)) {
-                const unitPrice = Number(sizePrices[size]) || 0;
-                const subtotal = total * unitPrice;
-
-                grandTotal += subtotal;
-
-                const subtotalElement = document.getElementById(`subtotal-${size}`);
-
-                if (subtotalElement) {
-                    subtotalElement.innerText = "Subtotal: " + formatRupiah(subtotal);
-                }
-            }
-
-            document.getElementById("grandTotalPrice").innerText = formatRupiah(grandTotal);
-        }
-
-        // ============================================
-        // RENDER TABEL
-        // ============================================
-
-        function renderTable() {
-            const tbody = document.getElementById("inventoryList");
-            const sizeBreakdownList = document.getElementById("sizeBreakdownList");
-            const priceInputsContainer = document.getElementById("priceInputsContainer");
-
-            tbody.innerHTML = "";
-            sizeBreakdownList.innerHTML = "";
-            priceInputsContainer.innerHTML = "";
-
-            if (items.length === 0) {
-                const row = document.createElement("tr");
-                const cell = document.createElement("td");
-
-                cell.colSpan = 5;
-                cell.className = "py-6 text-center text-xs text-[#8c7a6b]";
-                cell.textContent = "Belum ada data yang dimasukkan.";
-
-                row.appendChild(cell);
-                tbody.appendChild(row);
-
-                sizeBreakdownList.innerHTML =
-                    '<span class="text-xs text-[#8c7a6b]">Belum ada data ukuran.</span>';
-
-                document.getElementById("grandTotalPrice").innerText = formatRupiah(0);
-                return;
-            }
-
-            const sizeTotals = {};
-
-            items.forEach(item => {
-                const size = String(item.size || "-").trim().toUpperCase();
-                const qty = parseInt(item.qty, 10) || 0;
-
-                sizeTotals[size] = (sizeTotals[size] || 0) + qty;
-
-                const tr = document.createElement("tr");
-                tr.className = "hover:bg-[#eee5dc]/40 transition-colors";
-
-                const nameCell = document.createElement("td");
-                nameCell.className = "py-3 px-4 font-semibold text-[#3d332c]";
-                nameCell.textContent = item.name || "-";
-
-                const colorCell = document.createElement("td");
-                colorCell.className = "py-3 px-4 text-[#5c4f44]";
-                colorCell.textContent = item.color || "-";
-
-                const sizeCell = document.createElement("td");
-                sizeCell.className = "py-3 px-4 text-center font-medium text-[#5c4f44]";
-                sizeCell.textContent = size;
-
-                const qtyCell = document.createElement("td");
-                qtyCell.className = "py-3 px-4 text-center font-bold text-[#52796f]";
-                qtyCell.textContent = qty + " pcs";
-
-                const actionCell = document.createElement("td");
-                actionCell.className = "py-3 px-4 text-right action-col";
-
-                const actionWrapper = document.createElement("div");
-                actionWrapper.className = "flex items-center justify-end gap-1.5";
-
-                const editButton = document.createElement("button");
-                editButton.type = "button";
-                editButton.className = "text-[#8c7a6b] hover:text-[#52796f] p-1";
-                editButton.title = "Edit";
-                editButton.textContent = "✏️";
-                editButton.onclick = () => editItem(item.id);
-
-                const deleteButton = document.createElement("button");
-                deleteButton.type = "button";
-                deleteButton.className = "text-[#8c7a6b] hover:text-rose-600 p-1";
-                deleteButton.title = "Hapus";
-                deleteButton.textContent = "🗑️";
-                deleteButton.onclick = () => deleteItem(item.id);
-
-                actionWrapper.appendChild(editButton);
-                actionWrapper.appendChild(deleteButton);
-                actionCell.appendChild(actionWrapper);
-
-                tr.appendChild(nameCell);
-                tr.appendChild(colorCell);
-                tr.appendChild(sizeCell);
-                tr.appendChild(qtyCell);
-                tr.appendChild(actionCell);
-
-                tbody.appendChild(tr);
-            });
-
-            Object.entries(sizeTotals).forEach(([size, total]) => {
-                if (!(size in sizePrices)) {
-                    sizePrices[size] = 0;
-                }
-
-                const badge = document.createElement("div");
-                badge.className =
-                    "bg-white border border-[#dcd0c0] px-3 py-1.5 rounded-lg shadow-sm flex items-center justify-between sm:justify-start gap-3";
-
-                const badgeText = document.createElement("span");
-                badgeText.innerHTML =
-                    "<strong></strong> : <span class='text-[#52796f] font-bold'></span>";
-
-                badgeText.querySelector("strong").textContent = size;
-                badgeText.querySelector("span").textContent = total + " pcs";
-
-                badge.appendChild(badgeText);
-                sizeBreakdownList.appendChild(badge);
-
-                const priceDiv = document.createElement("div");
-                priceDiv.className = "bg-white border border-[#dcd0c0] p-2.5 rounded-xl space-y-1";
-
-                const label = document.createElement("label");
-                label.className = "block text-[10px] font-bold text-[#6b5b52]";
-                label.textContent = "Harga satuan (" + size + ")";
-
-                const input = document.createElement("input");
-                input.type = "number";
-                input.min = "0";
-                input.value = Number(sizePrices[size]) || 0;
-                input.className =
-                    "w-full bg-[#faf7f2] border border-[#dcd0c0] rounded-lg px-2 py-1 text-xs font-semibold text-[#3d332c] focus:outline-none focus:border-[#52796f]";
-                input.oninput = () => handlePriceInput(size, input);
-
-                const subtotal = document.createElement("p");
-                subtotal.id = `subtotal-${size}`;
-                subtotal.className = "text-[9px] text-emerald-700 font-bold";
-                subtotal.textContent =
-                    "Subtotal: " + formatRupiah(total * (Number(sizePrices[size]) || 0));
-
-                priceDiv.appendChild(label);
-                priceDiv.appendChild(input);
-                priceDiv.appendChild(subtotal);
-
-                priceInputsContainer.appendChild(priceDiv);
-            });
-
-            calculateGrandTotal();
-        }
-
-        // ============================================
-        // TAMBAH / EDIT / HAPUS
-        // ============================================
-
-        function openModal(mode, id = null) {
-            const modal = document.getElementById("modal");
-
-            modal.classList.remove("hidden");
-            modal.classList.add("flex");
-
-            if (mode === "edit" && id !== null) {
-                const item = items.find(row => String(row.id) === String(id));
-
-                if (!item) {
-                    closeModal();
-                    alert("Data tidak ditemukan.");
-                    return;
-                }
-
-                document.getElementById("modalTitle").innerText = "Edit Data";
-                document.getElementById("itemId").value = item.id;
-                document.getElementById("itemName").value = item.name || "";
-                document.getElementById("itemColor").value = item.color || "";
-                document.getElementById("itemSize").value = item.size || "";
-                document.getElementById("itemQty").value = item.qty || 1;
-            } else {
-                document.getElementById("modalTitle").innerText = "Tambah Data";
-                document.getElementById("itemForm").reset();
-                document.getElementById("itemId").value = "";
-            }
-        }
-
-        function closeModal() {
-            const modal = document.getElementById("modal");
-            modal.classList.add("hidden");
-            modal.classList.remove("flex");
-        }
-
-        function saveItem(event) {
-            event.preventDefault();
-
-            const id = document.getElementById("itemId").value;
-            const name = document.getElementById("itemName").value.trim();
-            const color = document.getElementById("itemColor").value.trim();
-            const size = document.getElementById("itemSize").value.trim().toUpperCase();
-            const qty = parseInt(document.getElementById("itemQty").value, 10);
-
-            if (!name || !color || !size || !Number.isInteger(qty) || qty < 1) {
-                alert("Periksa kembali semua kolom.");
-                return;
-            }
-
-            if (id !== "") {
-                const index = items.findIndex(item => String(item.id) === String(id));
-
-                if (index === -1) {
-                    alert("Data yang ingin diedit tidak ditemukan.");
-                    return;
-                }
-
-                items[index] = {
-                    ...items[index],
-                    name,
-                    color,
-                    size,
-                    qty
-                };
-            } else {
-                items.push({
-                    id: Date.now() + Math.random(),
-                    name,
-                    color,
-                    size,
-                    qty
-                });
-            }
-
-            saveStorage();
-            closeModal();
-            renderTable();
-        }
-
-        function editItem(id) {
-            openModal("edit", id);
-        }
-
-        function deleteItem(id) {
-            if (!confirm("Apakah kamu yakin ingin menghapus data ini?")) {
-                return;
-            }
-
-            items = items.filter(item => String(item.id) !== String(id));
-
-            saveStorage();
-            renderTable();
-        }
-
-        function resetData() {
-            if (!confirm("Yakin ingin menghapus semua data pakaian?")) {
-                return;
-            }
-
-            items = [];
-            saveStorage();
-            renderTable();
-        }
-
-        // ============================================
-        // MODAL GEMINI AI
-        // ============================================
-
-        function openOcrModal() {
-            const modal = document.getElementById("ocrModal");
-
-            modal.classList.remove("hidden");
-            modal.classList.add("flex");
-
-            document.getElementById("ocrInput").value = "";
-            document.getElementById("ocrStatus").classList.add("hidden");
-            document.getElementById("ocrResultBox").classList.add("hidden");
-            document.getElementById("ocrRawText").value = "";
-        }
-
-        function closeOcrModal() {
-            const modal = document.getElementById("ocrModal");
-            modal.classList.add("hidden");
-            modal.classList.remove("flex");
-        }
-
-        function fileToBase64(file) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-
-                reader.onload = () => {
-                    const result = String(reader.result);
-                    resolve(result.split(",")[1]);
-                };
-
-                reader.onerror = () => {
-                    reject(new Error("Foto tidak dapat dibaca."));
-                };
-
-                reader.readAsDataURL(file);
-            });
-        }
-
-        async function processOcrImage(event) {
-            const file = event.target.files && event.target.files[0];
-
-            if (!file) {
-                return;
-            }
-
-            if (!file.type.startsWith("image/")) {
-                alert("Pilih file gambar seperti JPG, PNG, atau WEBP.");
-                event.target.value = "";
-                return;
-            }
-
-            if (file.size > 5 * 1024 * 1024) {
-                alert("Ukuran foto maksimal 5 MB. Silakan kompres foto terlebih dahulu.");
-                event.target.value = "";
-                return;
-            }
-
-            if (
-                !GEMINI_API_KEY ||
-                GEMINI_API_KEY === "MASUKKAN_API_KEY_GEMINI_DI_SINI"
-            ) {
-                alert("Masukkan API key Gemini pada variabel GEMINI_API_KEY di index.html.");
-                event.target.value = "";
-                return;
-            }
-
-            const status = document.getElementById("ocrStatus");
-            const resultBox = document.getElementById("ocrResultBox");
-            const rawText = document.getElementById("ocrRawText");
-
-            status.classList.remove("hidden");
-            status.textContent = "Gemini sedang membaca foto. Mohon tunggu...";
-            resultBox.classList.add("hidden");
-            rawText.value = "";
-
-            try {
-                const base64 = await fileToBase64(file);
-
-                const prompt = `
-Baca foto tabel atau catatan inventaris pakaian ini.
-
-Kembalikan hanya JSON array yang valid, tanpa markdown atau penjelasan di luar JSON.
-
-Format:
-[
-  {
-    "name": "nama barang",
-    "color": "warna",
-    "size": "ukuran",
-    "qty": 1
+    <form id="itemForm">
+      <input type="hidden" id="itemId">
+      <div class="field-grid" style="margin-top:16px">
+        <div class="field full">
+          <label for="itemName">Nama barang</label>
+          <input id="itemName" required placeholder="Contoh: Koko lengan panjang">
+        </div>
+        <div class="field">
+          <label for="itemColor">Warna</label>
+          <input id="itemColor" required placeholder="Hitam">
+        </div>
+        <div class="field">
+          <label for="itemSize">Ukuran</label>
+          <input id="itemSize" required placeholder="M">
+        </div>
+        <div class="field">
+          <label for="itemQty">Jumlah</label>
+          <input id="itemQty" type="number" min="0" step="1" required placeholder="0">
+        </div>
+      </div>
+      <div class="actions" style="margin-top:16px">
+        <button type="submit">Simpan data</button>
+        <button type="button" class="secondary" data-close="editModal">Batal</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div id="scanModal" class="modal hidden">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h2>Baca foto tabel</h2>
+      <button class="secondary" data-close="scanModal">✕</button>
+    </div>
+    <p class="muted">Pilih foto tabel stok pakaian untuk dibaca Gemini.</p>
+    <div class="field">
+      <label for="imageFile">Foto tabel (JPG/PNG/WebP)</label>
+      <input id="imageFile" type="file" accept="image/*">
+    </div>
+    <img id="imagePreview" class="preview hidden" alt="Pratinjau foto">
+    <div class="notice">
+      Masukkan API key baru di konstanta GEMINI_API_KEY dalam skrip.
+      Jangan gunakan kunci yang sudah terekspos.
+    </div>
+    <div class="actions" style="margin-top:14px">
+      <button id="readImageBtn">Baca foto</button>
+      <button class="secondary" data-close="scanModal">Batal</button>
+    </div>
+    <div id="scanStatus" class="status"></div>
+    <div id="scanResults" class="hidden">
+      <h3>Hasil pembacaan</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Nama barang</th><th>Warna</th><th>Ukuran</th><th>Jumlah</th></tr></thead>
+          <tbody id="scanBody"></tbody>
+        </table>
+      </div>
+      <div class="actions" style="margin-top:12px">
+        <button id="importScanBtn">Tambahkan hasil ke tabel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="historyModal" class="modal hidden">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h2>Riwayat simpan</h2>
+      <button class="secondary" data-close="historyModal">✕</button>
+    </div>
+    <p class="muted">Riwayat tersimpan otomatis setiap kali data berubah.</p>
+    <div id="historyList"></div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
+<script>
+/* =====================================================
+   PENGATURAN GEMINI
+   Ganti placeholder dengan API KEY BARU milikmu.
+   Jangan unggah API key sungguhan ke repository publik.
+===================================================== */
+const GEMINI_API_KEY = "MASUKKAN_API_KEY_GEMINI_BARU_DI_SINI";
+const GEMINI_MODEL = "gemini-3.8-flash";
+
+const STORAGE_KEY = "laporanPakaianData_v2";
+const HISTORY_KEY = "laporanPakaianHistory_v2";
+
+let items = loadItems();
+let scanItems = [];
+let selectedImage = null;
+
+/* ================== PENYIMPANAN ================== */
+function loadItems() {
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+  } catch {
+    return [];
   }
-]
+}
 
-Aturan:
-- name adalah nama barang atau pakaian.
-- color adalah warna barang.
-- size adalah ukuran pakaian, misalnya S, M, L, XL, XXL, atau XXXL.
-- qty adalah jumlah dalam bentuk angka bulat.
-- Jika tabel berisi jumlah untuk beberapa ukuran, buat satu objek untuk setiap ukuran yang memiliki jumlah.
-- Jika tabel memiliki beberapa warna, pertahankan warna masing-masing.
-- Abaikan judul tabel dan baris total keseluruhan.
-- Jangan mengarang data yang tidak terlihat.
-- Jika sebuah nilai tidak terbaca, isi dengan tanda "-".
-- Jangan menggabungkan dua baris berbeda menjadi satu data.
-- Pastikan JSON valid dan dapat diproses oleh JavaScript.
+function saveItems(makeHistory = true) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+  if (makeHistory) saveHistory();
+  render();
+}
+
+function saveHistory() {
+  try {
+    const history = JSON.parse(localStorage.getItem(HISTORY_KEY) || "[]");
+    history.unshift({
+      time: new Date().toISOString(),
+      items: items
+    });
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(history.slice(0, 30)));
+  } catch (error) {
+    console.warn("Gagal menyimpan riwayat", error);
+  }
+}
+
+function uid() {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+}
+
+function esc(value) {
+  return String(value ?? "").replace(/[&<>"']/g, char => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;"
+  })[char]);
+}
+
+/* ================== TABEL ================== */
+function render() {
+  const query = document.getElementById("searchInput").value.trim().toLowerCase();
+  const filtered = items.filter(item =>
+    [item.name, item.color, item.size].some(value =>
+      String(value).toLowerCase().includes(query)
+    )
+  );
+
+  const body = document.getElementById("tableBody");
+  body.innerHTML = "";
+
+  if (!filtered.length) {
+    body.innerHTML = `<tr><td colspan="6" class="empty">${
+      items.length
+        ? "Tidak ada data yang cocok."
+        : "Belum ada data. Tekan Tambah data atau baca foto tabel."
+    }</td></tr>`;
+  } else {
+    filtered.forEach((item, index) => {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${index + 1}</td>
+        <td>${esc(item.name)}</td>
+        <td>${esc(item.color)}</td>
+        <td>${esc(item.size)}</td>
+        <td>${Number(item.qty) || 0}</td>
+        <td class="actionCol">
+          <div class="small-actions">
+            <button class="secondary" data-edit="${item.id}">Edit</button>
+            <button class="danger" data-delete="${item.id}">Hapus</button>
+          </div>
+        </td>`;
+      body.appendChild(row);
+    });
+  }
+
+  document.getElementById("rowCount").textContent = items.length;
+  document.getElementById("qtyCount").textContent =
+    items.reduce((sum, item) => sum + (Number(item.qty) || 0), 0);
+  document.getElementById("colorCount").textContent =
+    new Set(items.map(item => item.color.trim().toLowerCase()).filter(Boolean)).size;
+  document.getElementById("exportTitle").textContent =
+    document.getElementById("reportTitle").value.trim() || "Laporan Data Pakaian";
+}
+
+function openModal(id) {
+  document.getElementById(id).classList.remove("hidden");
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.add("hidden");
+}
+
+/* ================== HALAMAN PEMBUKA ================== */
+document.getElementById("startBtn").addEventListener("click", async () => {
+  document.getElementById("intro").classList.add("hidden");
+  try {
+    const audio = document.getElementById("startAudio");
+    audio.currentTime = 0;
+    await audio.play();
+  } catch (error) {
+    console.warn("Audio tidak dapat diputar", error);
+  }
+});
+
+document.getElementById("homeBtn").addEventListener("click", () => {
+  window.scrollTo({ top: 0, behavior: "smooth" });
+});
+
+/* ================== TAMBAH DAN EDIT ================== */
+document.getElementById("addBtn").addEventListener("click", () => {
+  document.getElementById("itemForm").reset();
+  document.getElementById("itemId").value = "";
+  document.getElementById("formTitle").textContent = "Tambah data";
+  openModal("editModal");
+});
+
+document.querySelectorAll("[data-close]").forEach(button => {
+  button.addEventListener("click", () => closeModal(button.dataset.close));
+});
+
+document.getElementById("itemForm").addEventListener("submit", event => {
+  event.preventDefault();
+
+  const id = document.getElementById("itemId").value;
+  const item = {
+    id: id || uid(),
+    name: document.getElementById("itemName").value.trim(),
+    color: document.getElementById("itemColor").value.trim(),
+    size: document.getElementById("itemSize").value.trim(),
+    qty: Number(document.getElementById("itemQty").value)
+  };
+
+  if (id) {
+    items = items.map(existing => existing.id === id ? item : existing);
+  } else {
+    items.push(item);
+  }
+
+  saveItems();
+  closeModal("editModal");
+});
+
+document.getElementById("tableBody").addEventListener("click", event => {
+  const editButton = event.target.closest("[data-edit]");
+  const deleteButton = event.target.closest("[data-delete]");
+
+  if (editButton) {
+    const item = items.find(entry => entry.id === editButton.dataset.edit);
+    if (!item) return;
+
+    document.getElementById("itemId").value = item.id;
+    document.getElementById("itemName").value = item.name;
+    document.getElementById("itemColor").value = item.color;
+    document.getElementById("itemSize").value = item.size;
+    document.getElementById("itemQty").value = item.qty;
+    document.getElementById("formTitle").textContent = "Edit data";
+    openModal("editModal");
+  }
+
+  if (deleteButton) {
+    const item = items.find(entry => entry.id === deleteButton.dataset.delete);
+    if (item && confirm(`Hapus data "${item.name}" warna ${item.color} ukuran ${item.size}?`)) {
+      items = items.filter(entry => entry.id !== item.id);
+      saveItems();
+    }
+  }
+});
+
+document.getElementById("searchInput").addEventListener("input", render);
+document.getElementById("reportTitle").addEventListener("input", render);
+
+document.getElementById("clearBtn").addEventListener("click", () => {
+  if (items.length && confirm("Kosongkan semua data pakaian?")) {
+    items = [];
+    saveItems();
+  }
+});
+
+/* ================== EKSPOR JSON ================== */
+function downloadBlob(data, filename, type) {
+  const blob = new Blob([data], { type });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  link.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+document.getElementById("jsonBtn").addEventListener("click", () => {
+  const report = {
+    judul: document.getElementById("reportTitle").value,
+    updated_at: new Date().toISOString(),
+    data: items.map(({ id, ...item }) => item)
+  };
+
+  downloadBlob(
+    JSON.stringify(report, null, 2),
+    "laporan-pakaian.json",
+    "application/json"
+  );
+});
+
+/* ================== EKSPOR PNG ================== */
+document.getElementById("pngBtn").addEventListener("click", async () => {
+  if (!window.html2canvas) {
+    alert("Gagal memuat alat ekspor PNG. Periksa koneksi internet.");
+    return;
+  }
+
+  const area = document.getElementById("exportArea");
+  const actionColumns = document.querySelectorAll(".actionCol");
+  actionColumns.forEach(element => element.classList.add("hidden"));
+
+  try {
+    const canvas = await html2canvas(area, {
+      backgroundColor: "#fffdf8",
+      scale: 2
+    });
+
+    canvas.toBlob(blob => {
+      if (!blob) {
+        alert("Gagal membuat PNG.");
+        return;
+      }
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "laporan-pakaian.png";
+      link.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    });
+  } catch (error) {
+    alert("Gagal ekspor PNG: " + error.message);
+  } finally {
+    actionColumns.forEach(element => element.classList.remove("hidden"));
+  }
+});
+
+/* ================== PEMINDAI FOTO GEMINI ================== */
+document.getElementById("scanBtn").addEventListener("click", () => {
+  document.getElementById("imageFile").value = "";
+  document.getElementById("imagePreview").classList.add("hidden");
+  document.getElementById("scanStatus").textContent = "";
+  document.getElementById("scanResults").classList.add("hidden");
+  selectedImage = null;
+  scanItems = [];
+  openModal("scanModal");
+});
+
+document.getElementById("imageFile").addEventListener("change", event => {
+  const file = event.target.files?.[0];
+  if (!file) return;
+
+  if (!file.type.startsWith("image/")) {
+    alert("Pilih file gambar.");
+    return;
+  }
+
+  if (file.size > 12 * 1024 * 1024) {
+    alert("Ukuran gambar maksimal 12 MB.");
+    event.target.value = "";
+    return;
+  }
+
+  selectedImage = file;
+  const preview = document.getElementById("imagePreview");
+  preview.src = URL.createObjectURL(file);
+  preview.classList.remove("hidden");
+});
+
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result).split(",")[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+/*
+  Interactions API:
+  - Endpoint: /v1beta/interactions
+  - Auth: x-goog-api-key
+  - Input gambar dikirim sebagai base64.
+*/
+function extractOutputText(data) {
+  if (typeof data.output_text === "string") {
+    return data.output_text;
+  }
+
+  const texts = [];
+
+  for (const step of (data.steps || [])) {
+    if (typeof step.text === "string") texts.push(step.text);
+
+    for (const content of (step.content || [])) {
+      if (content.type === "text" && content.text) {
+        texts.push(content.text);
+      }
+    }
+  }
+
+  if (!texts.length && Array.isArray(data.output)) {
+    for (const output of data.output) {
+      if (typeof output.text === "string") texts.push(output.text);
+      for (const content of (output.content || [])) {
+        if (content.type === "text" && content.text) {
+          texts.push(content.text);
+        }
+      }
+    }
+  }
+
+  return texts.join("\n");
+}
+
+document.getElementById("readImageBtn").addEventListener("click", readImage);
+
+async function readImage() {
+  const status = document.getElementById("scanStatus");
+  const button = document.getElementById("readImageBtn");
+
+  if (!selectedImage) {
+    status.textContent = "Pilih foto terlebih dahulu.";
+    return;
+  }
+
+  if (
+    !GEMINI_API_KEY ||
+    GEMINI_API_KEY.includes("AQ.Ab8RN6J0Za7EPiDg9Atj8PH3lQXee9Q02zPX4-2XkbZuQCStqA")
+  ) {
+    status.textContent =
+      "Masukkan API key baru pada konstanta GEMINI_API_KEY di dalam skrip.";
+    return;
+  }
+
+  button.disabled = true;
+  status.textContent = "Sedang membaca foto…";
+  document.getElementById("scanResults").classList.add("hidden");
+
+  try {
+    const base64 = await fileToBase64(selectedImage);
+
+    const prompt = `
+Baca tabel inventaris pakaian pada gambar.
+Kembalikan hanya JSON valid berupa array, tanpa markdown atau penjelasan.
+Setiap objek wajib memiliki:
+- "nama_barang": string
+- "warna": string
+- "ukuran": string
+- "jumlah": integer
+
+Satu baris untuk setiap kombinasi barang, warna, dan ukuran.
+Jika nama barang tidak terlihat, gunakan "Pakaian".
+Jangan mengarang angka atau baris yang tidak terbaca.
+Contoh:
+[{"nama_barang":"Baju koko","warna":"Hitam","ukuran":"M","jumlah":12}]
 `;
 
-                const endpoint =
-                    `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
-
-                const response = await fetch(endpoint, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "x-goog-api-key": GEMINI_API_KEY
-                    },
-                    body: JSON.stringify({
-                        contents: [
-                            {
-                                parts: [
-                                    { text: prompt },
-                                    {
-                                        inline_data: {
-                                            mime_type: file.type,
-                                            data: base64
-                                        }
-                                    }
-                                ]
-                            }
-                        ],
-                        generationConfig: {
-                            responseMimeType: "application/json",
-                            temperature: 0.1
-                        }
-                    })
-                });
-
-                const result = await response.json().catch(() => ({}));
-
-                if (!response.ok) {
-                    const message =
-                        result?.error?.message ||
-                        `Permintaan gagal (HTTP ${response.status}).`;
-
-                    throw new Error(message);
-                }
-
-                const generatedText = result?.candidates?.[0]?.content?.parts
-                    ?.map(part => part.text || "")
-                    .join("")
-                    .trim();
-
-                if (!generatedText) {
-                    const reason = result?.candidates?.[0]?.finishReason;
-
-                    throw new Error(
-                        reason
-                            ? `Gemini tidak mengembalikan hasil. Status: ${reason}`
-                            : "Gemini tidak mengembalikan hasil. Coba foto lain."
-                    );
-                }
-
-                let parsed;
-
-                try {
-                    parsed = JSON.parse(generatedText);
-                } catch (error) {
-                    const cleaned = generatedText
-                        .replace(/^```(?:json)?\s*/i, "")
-                        .replace(/\s*```$/, "")
-                        .trim();
-
-                    parsed = JSON.parse(cleaned);
-                }
-
-                if (!Array.isArray(parsed)) {
-                    if (Array.isArray(parsed.items)) {
-                        parsed = parsed.items;
-                    } else {
-                        throw new Error("Format hasil dari Gemini bukan JSON array.");
-                    }
-                }
-
-                rawText.value = JSON.stringify(parsed, null, 2);
-                resultBox.classList.remove("hidden");
-                status.classList.add("hidden");
-
-            } catch (error) {
-                console.error("Gemini scan error:", error);
-                status.classList.add("hidden");
-
-                alert(
-                    "Gagal membaca foto dengan Gemini.\n\n" +
-                    (error.message || "Kesalahan tidak diketahui") +
-                    "\n\nPeriksa API key, kuota, koneksi internet, dan nama model Gemini."
-                );
-            } finally {
-                event.target.value = "";
+    const response = await fetch(
+      "https://generativelanguage.googleapis.com/v1beta/interactions",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-goog-api-key": GEMINI_API_KEY
+        },
+        body: JSON.stringify({
+          model: GEMINI_MODEL,
+          input: [
+            { type: "text", text: prompt },
+            {
+              type: "image",
+              data: base64,
+              mime_type: selectedImage.type || "image/jpeg"
             }
-        }
+          ],
+          store: false
+        })
+      }
+    );
 
-        // ============================================
-        // MASUKKAN HASIL SCAN KE TABEL
-        // ============================================
+    const raw = await response.text();
+    let data;
 
-        function convertTextToItems() {
-            const text = document.getElementById("ocrRawText").value.trim();
+    try {
+      data = JSON.parse(raw);
+    } catch {
+      throw new Error("Respons server tidak dapat dibaca: " + raw.slice(0, 250));
+    }
 
-            if (!text) {
-                alert("Belum ada hasil scan. Pilih foto terlebih dahulu.");
-                return;
-            }
+    if (!response.ok) {
+      const message =
+        data.error?.message ||
+        data.message ||
+        `HTTP ${response.status}`;
+      throw new Error(message);
+    }
 
-            try {
-                let data = JSON.parse(text);
+    const outputText = extractOutputText(data);
 
-                if (!Array.isArray(data) && Array.isArray(data.items)) {
-                    data = data.items;
-                }
+    if (!outputText) {
+      throw new Error(
+        "Gemini tidak mengembalikan teks hasil. Coba foto yang lebih jelas."
+      );
+    }
 
-                if (!Array.isArray(data)) {
-                    throw new Error("Data harus berbentuk JSON array.");
-                }
+    let cleaned = outputText.trim()
+      .replace(/^```(?:json)?\s*/i, "")
+      .replace(/\s*```$/, "");
 
-                const newItems = data
-                    .filter(row => row && typeof row === "object")
-                    .map(row => {
-                        const rawQty = Number.parseInt(
-                            row.qty ?? row.jumlah ?? row.quantity,
-                            10
-                        );
+    const start = cleaned.indexOf("[");
+    const end = cleaned.lastIndexOf("]");
 
-                        return {
-                            id: Date.now() + Math.random(),
-                            name: String(
-                                row.name ?? row.nama ?? row.barang ?? "Barang Scan"
-                            ).trim() || "Barang Scan",
+    if (start >= 0 && end > start) {
+      cleaned = cleaned.slice(start, end + 1);
+    }
 
-                            color: String(
-                                row.color ?? row.warna ?? "-"
-                            ).trim() || "-",
+    let parsed;
+    try {
+      parsed = JSON.parse(cleaned);
+    } catch {
+      throw new Error(
+        "Hasil Gemini bukan JSON valid. Coba foto lebih jelas atau potong bagian tabel."
+      );
+    }
 
-                            size: String(
-                                row.size ?? row.ukuran ?? "-"
-                            ).trim().toUpperCase() || "-",
+    if (!Array.isArray(parsed)) {
+      throw new Error("Format hasil bukan daftar data.");
+    }
 
-                            qty: rawQty
-                        };
-                    })
-                    .filter(row => Number.isInteger(row.qty) && row.qty > 0);
+    scanItems = parsed.map(item => ({
+      name: String(
+        item.nama_barang ?? item.nama ?? item.name ?? "Pakaian"
+      ).trim(),
+      color: String(
+        item.warna ?? item.color ?? "Tidak diketahui"
+      ).trim(),
+      size: String(
+        item.ukuran ?? item.size ?? "Tidak diketahui"
+      ).trim(),
+      qty: Math.max(
+        0,
+        Math.floor(Number(item.jumlah ?? item.qty ?? item.quantity) || 0)
+      )
+    })).filter(item => item.name);
 
-                if (newItems.length === 0) {
-                    alert(
-                        "Tidak ada data dengan jumlah yang valid. " +
-                        "Periksa atau edit JSON hasil scan terlebih dahulu."
-                    );
-                    return;
-                }
+    const body = document.getElementById("scanBody");
+    body.innerHTML = "";
 
-                items.push(...newItems);
+    scanItems.forEach(item => {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${esc(item.name)}</td>
+        <td>${esc(item.color)}</td>
+        <td>${esc(item.size)}</td>
+        <td>${item.qty}</td>`;
+      body.appendChild(row);
+    });
 
-                saveStorage();
-                renderTable();
-                closeOcrModal();
+    document.getElementById("scanResults").classList.remove("hidden");
+    status.textContent =
+      `Berhasil membaca ${scanItems.length} baris. Periksa hasilnya sebelum ditambahkan.`;
 
-                alert(
-                    `Berhasil menambahkan ${newItems.length} baris data. ` +
-                    "Silakan periksa kembali tabel."
-                );
+  } catch (error) {
+    status.textContent =
+      "Gagal membaca foto: " + error.message +
+      "\nPeriksa API key, akses model, kuota, koneksi, dan format foto.";
+  } finally {
+    button.disabled = false;
+  }
+}
 
-            } catch (error) {
-                alert(
-                    "Hasil scan belum berupa JSON yang valid.\n" +
-                    error.message +
-                    "\nSilakan periksa isi hasil scan."
-                );
-            }
-        }
+document.getElementById("importScanBtn").addEventListener("click", () => {
+  if (!scanItems.length) return;
 
-        // ============================================
-        // UNDUH LAPORAN SEBAGAI PNG
-        // ============================================
+  items.push(...scanItems.map(item => ({
+    ...item,
+    id: uid()
+  })));
 
-        async function downloadPNG() {
-            if (typeof html2canvas !== "function") {
-                alert("Fitur PNG belum tersedia. Periksa koneksi internet lalu coba lagi.");
-                return;
-            }
+  saveItems();
+  closeModal("scanModal");
+  alert(
+    `${scanItems.length} baris ditambahkan. Periksa kembali data hasil pembacaan.`
+  );
+});
 
-            const card = document.getElementById("reportCard");
-            const priceSection = document.getElementById("webOnlyPriceSection");
-            const actionColumns = document.querySelectorAll(".action-col");
-            const titleInput = document.getElementById("reportTitleInput");
+/* ================== RIWAYAT ================== */
+document.getElementById("historyBtn").addEventListener("click", () => {
+  const history = JSON.parse(localStorage.getItem(HISTORY_KEY) || "[]");
+  const box = document.getElementById("historyList");
+  box.innerHTML = "";
 
-            const previousPriceDisplay = priceSection.style.display;
-            const previousActionDisplays = Array.from(actionColumns).map(element => ({
-                element,
-                display: element.style.display
-            }));
+  if (!history.length) {
+    box.innerHTML = '<p class="muted">Belum ada riwayat.</p>';
+  }
 
-            card.classList.add("export-mode");
-            priceSection.style.display = "none";
+  history.forEach((snapshot, index) => {
+    const div = document.createElement("div");
+    div.className = "panel";
+    div.style.marginTop = "10px";
 
-            actionColumns.forEach(element => {
-                element.style.display = "none";
-            });
+    const date = new Date(snapshot.time).toLocaleString("id-ID");
+    const total = snapshot.items.reduce(
+      (sum, item) => sum + (Number(item.qty) || 0), 0
+    );
 
-            try {
-                const canvas = await html2canvas(card, {
-                    backgroundColor: "#faf7f2",
-                    scale: 2,
-                    useCORS: true,
-                    logging: false
-                });
+    div.innerHTML = `
+      <b>${esc(date)}</b>
+      <p class="muted">${snapshot.items.length} baris • ${total} total jumlah</p>
+      <div class="actions">
+        <button class="secondary" data-restore="${index}">Pulihkan versi ini</button>
+      </div>`;
 
-                const link = document.createElement("a");
-                const safeTitle = (titleInput.value || "Laporan")
-                    .replace(/[\\/:*?"<>|]/g, "-")
-                    .trim();
+    box.appendChild(div);
+  });
 
-                link.download =
-                    `${safeTitle || "Laporan"}-${new Date().toISOString().slice(0, 10)}.png`;
+  box.onclick = event => {
+    const button = event.target.closest("[data-restore]");
+    if (!button) return;
 
-                link.href = canvas.toDataURL("image/png");
-                link.click();
+    const snapshot = history[Number(button.dataset.restore)];
 
-            } catch (error) {
-                console.error("Gagal membuat PNG:", error);
-                alert("Gagal membuat gambar PNG. Silakan coba lagi.");
-            } finally {
-                card.classList.remove("export-mode");
-                priceSection.style.display = previousPriceDisplay;
+    if (
+      snapshot &&
+      confirm("Pulihkan data dari riwayat ini? Data saat ini akan digantikan.")
+    ) {
+      items = snapshot.items;
+      saveItems();
+      closeModal("historyModal");
+    }
+  };
 
-                previousActionDisplays.forEach(item => {
-                    item.element.style.display = item.display;
-                });
-            }
-        }
+  openModal("historyModal");
+});
 
-        // ============================================
-        // JALANKAN APLIKASI
-        // ============================================
-
-        renderTable();
-    </script>
+/* ================== MULAI APLIKASI ================== */
+render();
+</script>
 </body>
 </html>

@@ -10,8 +10,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- html2canvas untuk Download PNG -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <!-- Tesseract.js untuk OCR / Image to Text Gratis -->
-    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -96,10 +94,10 @@
                         </div>
                     </div>
 
-                    <!-- Tombol Scan Foto Catatan (Fitur Gratis) -->
+                    <!-- Tombol Scan Foto Catatan (Gemini AI Vision) -->
                     <button onclick="openOcrModal()" class="action-col bg-[#8c7a6b] hover:bg-[#6b5b52] text-white px-3 py-2 rounded-xl text-xs font-semibold transition-all shadow-md flex items-center gap-1 shrink-0">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                        <span>Sken foto</span>
+                        <span>Sken foto AI</span>
                     </button>
 
                     <!-- Tombol Tambah Manual -->
@@ -205,26 +203,26 @@
         </div>
     </div>
 
-    <!-- MODAL SCAN FOTO / OCR (GRATIS) -->
+    <!-- MODAL SCAN FOTO / GEMINI AI VISION -->
     <div id="ocrModal" class="fixed inset-0 bg-[#3d332c]/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
         <div class="nude-card w-full max-w-lg p-6 rounded-2xl shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center border-b border-[#e6ded3] pb-3">
-                <h3 class="text-base font-bold text-[#3d332c]">sken foto</h3>
+                <h3 class="text-base font-bold text-[#3d332c]">Sken Foto (Gemini AI)</h3>
                 <button onclick="closeOcrModal()" class="text-[#8c7a6b] hover:text-[#3d332c]">✕</button>
             </div>
 
-            <p class="text-xs text-[#8c7a6b]">Pilih foto:</p>
+            <p class="text-xs text-[#8c7a6b]">Pilih foto catatan atau screenshot pakaian Anda. AI Gemini akan membacanya secara akurat:</p>
 
             <div class="space-y-3">
                 <input type="file" id="ocrInput" accept="image/*" onchange="processOcrImage(event)" class="w-full text-xs text-[#5c4f44] file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-[#eee5dc] file:text-[#3d332c] hover:file:bg-[#dcd0c0] cursor-pointer">
                 
                 <div id="ocrStatus" class="hidden text-xs text-center py-2 bg-[#eee5dc]/50 rounded-xl text-[#52796f] font-semibold animate-pulse">
-                    kela tungguan... ker maca foto...
+                    ⏳ Gemini nuju maca foto... antosan sakeudeung...
                 </div>
 
                 <div id="ocrResultBox" class="hidden space-y-2">
                     <label class="block text-xs font-semibold text-[#6b5b52]">benerken data:</label>
-                    <textarea id="ocrRawText" rows="4" class="w-full bg-white border border-[#dcd0c0] rounded-xl p-3 text-xs text-[#3d332c] focus:outline-none focus:border-[#52796f]" placeholder="Hasil teks akan muncul di sini..."></textarea>
+                    <textarea id="ocrRawText" rows="4" class="w-full bg-white border border-[#dcd0c0] rounded-xl p-3 text-xs text-[#3d332c] focus:outline-none focus:border-[#52796f]" placeholder="Hasil teks AI bakal mucunghul di dieu..."></textarea>
                     
                     <button onclick="convertTextToItems()" class="w-full bg-[#52796f] hover:bg-[#3f5d54] text-white py-2.5 rounded-xl text-xs font-semibold shadow-md">
                         tambah data kana tabel
@@ -236,6 +234,9 @@
 
     <!-- Script Logika -->
     <script>
+        // API Key Gemini yang Anda berikan sudah dimasukkan di sini
+        const GEMINI_API_KEY = "AQ.Ab8RN6KpJDNRItiE2I361uGamYgrrKfX6xten2sZzl9B6kfmZA";
+
         const initialData = [];
 
         let items = JSON.parse(localStorage.getItem('clothing_inventory')) || initialData;
@@ -279,12 +280,10 @@
             localStorage.setItem('clothing_report_title', val);
         }
 
-        // DIPERBAIKI: Kalkulator harga satuan menggunakan handlePriceInput agar keyboard HP tidak tertutup/turun saat mengetik
         function handlePriceInput(size, inputEl) {
             const val = parseFloat(inputEl.value) || 0;
             sizePrices[size.toUpperCase()] = val;
             localStorage.setItem('clothing_size_prices', JSON.stringify(sizePrices));
-            
             calculateGrandTotal();
         }
 
@@ -436,7 +435,7 @@
             }
         }
 
-        /* LOGIKA SCAN OCR GRATIS */
+        /* LOGIKA GEMINI AI VISION */
         function openOcrModal() {
             document.getElementById('ocrModal').classList.remove('hidden');
             document.getElementById('ocrInput').value = '';
@@ -448,7 +447,16 @@
             document.getElementById('ocrModal').classList.add('hidden');
         }
 
-        function processOcrImage(event) {
+        function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result.split(',')[1]);
+                reader.onerror = error => reject(error);
+            });
+        }
+
+        async function processOcrImage(event) {
             const file = event.target.files[0];
             if (!file) return;
 
@@ -458,18 +466,44 @@
             status.classList.remove('hidden');
             resultBox.classList.add('hidden');
 
-            Tesseract.recognize(
-                file,
-                'ind+eng',
-                { logger: m => console.log(m) }
-            ).then(({ data: { text } }) => {
+            try {
+                const base64Data = await fileToBase64(file);
+
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [
+                                {
+                                    text: "Baca gambar catatan pakaian ini. Ubah ke format teks baris per baris dengan format: NamaBarang, Warna, Ukuran, Jumlah. Contoh: Kemeja, Mocca, M, 15. Berikan hasilnya secara langsung tanpa basa-basi."
+                                },
+                                {
+                                    inline_data: {
+                                        mime_type: file.type,
+                                        data: base64Data
+                                    }
+                                }
+                            ]
+                        }]
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.candidates && data.candidates[0].content) {
+                    const textResult = data.candidates[0].content.parts[0].text;
+                    status.classList.add('hidden');
+                    resultBox.classList.remove('hidden');
+                    document.getElementById('ocrRawText').value = textResult;
+                } else {
+                    throw new Error("Gagal mendeteksi respons dari Gemini.");
+                }
+
+            } catch (err) {
+                alert("Gagal memproses gambar dengan Gemini: " + err.message);
                 status.classList.add('hidden');
-                resultBox.classList.remove('hidden');
-                document.getElementById('ocrRawText').value = text;
-            }).catch(err => {
-                alert("Gagal membaca gambar: " + err.message);
-                status.classList.add('hidden');
-            });
+            }
         }
 
         function convertTextToItems() {
@@ -485,8 +519,8 @@
                 if (parts.length >= 2) {
                     const qtyMatch = cleanLine.match(/\d+/);
                     const qty = qtyMatch ? parseInt(qtyMatch[0]) : 1;
-                    const name = parts[0] || "Barang Scan";
-                    const color = parts[1] || "Bawaan";
+                    const name = parts[0] || "Barang";
+                    const color = parts[1] || "Warna";
                     const size = parts.find(p => ['S','M','L','XL','XXL'].includes(p.toUpperCase())) || "M";
 
                     items.push({
@@ -504,9 +538,9 @@
                 saveStorage();
                 renderTable();
                 closeOcrModal();
-                alert(`data ditambihkeun ${addedCount} hasil tina sken foto!`);
+                alert(`data ditambihkeun ${addedCount} hasil tina sken AI Gemini!`);
             } else {
-                alert("Tulisan teu kaharti.");
+                alert("Tulisan teu kaharti atanapi format teu cocog.");
             }
         }
 

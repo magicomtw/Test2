@@ -1,12 +1,5 @@
 {
-  "name": "laporan-inventaris-app",
-  "version": "1.0.0",
-  "description": "Aplikasi Web Laporan Inventaris Estetis dengan fitur Ekspor PNG",
-  "main": "index.html",
-  "scripts": {
-    "start": "serve ."
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC"
+  "dependencies": {
+    "@google/genai": "^0.1.1"
+  }
 }

@@ -1,28 +1,31 @@
+import { GoogleGenAI } from '@google/genai';
+
 export default async function handler(req, res) {
-  // Hanya izinkan metode POST
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
   try {
     const { imageBase64, mimeType } = req.body;
-    const apiKey = process.env.GEMINI_API_KEY; // Diambil otomatis & aman dari Vercel Environment Variables
+    const apiKey = process.env.GEMINI_API_KEY;
 
     if (!apiKey) {
-      return res.status(500).json({ error: 'API Key belum diset di server Vercel.' });
+      return res.status(500).json({ error: 'API Key belum diset di Vercel Environment Variables.' });
     }
 
-    // Menggunakan model gemini-1.5-flash dan endpoint v1 yang kompatibel dengan key baru
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-goog-api-key': apiKey
-      },
-      body: JSON.stringify({
-        contents: [{
-          parts: [
-            { text: `Baca foto tabel atau catatan inventaris pakaian ini. Ekstrak setiap baris barang menjadi data terstruktur. Kembalikan HANYA JSON array valid tanpa markdown atau penjelasan, dengan format persis: [{"name":"nama barang","color":"warna","size":"ukuran","qty":1}].
+    const ai = new GoogleGenAI({ apiKey: apiKey });
+
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: [
+        {
+          inlineData: {
+            mimeType: mimeType,
+            data: imageBase64
+          }
+        },
+        {
+          text: `Baca foto tabel atau catatan inventaris pakaian ini. Ekstrak setiap baris barang menjadi data terstruktur. Kembalikan HANYA JSON array valid tanpa markdown atau penjelasan, dengan format persis: [{"name":"nama barang","color":"warna","size":"ukuran","qty":1}].
 Aturan:
 - name = nama barang; jika tidak terlihat, gunakan "Barang Scan".
 - color = warna; jika tidak ada, gunakan "-".
@@ -30,23 +33,23 @@ Aturan:
 - qty = jumlah sebagai angka; jika tidak jelas, gunakan 1.
 - Abaikan judul, header kolom, total, dan catatan yang bukan baris barang. Jangan mengarang baris yang tidak terlihat.
 - Jika foto berisi tabel dengan jumlah per ukuran pada kolom terpisah, buat satu objek untuk setiap kombinasi barang/warna/ukuran dan isi qty dengan angka yang sesuai.
-- Jangan masukkan teks lain di luar JSON array.` },
-            { inline_data: { mime_type: mimeType, data: imageBase64 } }
-          ]
-        }],
-        generationConfig: {
-          responseMimeType: 'application/json',
-          temperature: 0.1
+- Jangan masukkan teks lain di luar JSON array.`
         }
-      })
+      ],
+      config: {
+        temperature: 0.1,
+        responseMimeType: 'application/json'
+      }
     });
 
-    const result = await response.json();
-    if (!response.ok) {
-      throw new Error(result?.error?.message || 'Gagal menghubungi Gemini API');
-    }
+    return res.status(200).json({
+      candidates: [{
+        content: {
+          parts: [{ text: response.text }]
+        }
+      }]
+    });
 
-    return res.status(200).json(result);
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }

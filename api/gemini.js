@@ -5,7 +5,6 @@ export default async function handler(req, res) {
 
   try {
     const { imageBase64, mimeType } = req.body;
-    // Mendukung variabel lingkungan GROQ_API_KEY atau GEMINI_API_KEY
     const apiKey = process.env.GROQ_API_KEY || process.env.GEMINI_API_KEY;
 
     if (!apiKey) {
@@ -19,7 +18,7 @@ export default async function handler(req, res) {
         'Authorization': `Bearer ${apiKey}`
       },
       body: JSON.stringify({
-        model: 'llama-3.2-11b-vision-preview',
+        model: 'llama-3.2-90b-vision-preview', // Diperbarui ke model vision aktif
         messages: [
           {
             role: 'user',
@@ -56,7 +55,6 @@ Aturan:
 
     const textContent = result.choices[0].message.content;
 
-    // Mengemas respons agar sesuai dengan struktur pembacaan di index.html frontend Anda
     return res.status(200).json({
       candidates: [{
         content: {

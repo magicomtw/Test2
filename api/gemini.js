@@ -1,5 +1,3 @@
-import { GoogleGenAI } from '@google/genai';
-
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
@@ -7,25 +5,34 @@ export default async function handler(req, res) {
 
   try {
     const { imageBase64, mimeType } = req.body;
-    const apiKey = process.env.GEMINI_API_KEY;
+    // Mendukung variabel lingkungan GROQ_API_KEY atau GEMINI_API_KEY
+    const apiKey = process.env.GROQ_API_KEY || process.env.GEMINI_API_KEY;
 
     if (!apiKey) {
-      return res.status(500).json({ error: 'API Key belum diset di Vercel Environment Variables.' });
+      return res.status(500).json({ error: 'API Key Groq belum diset di Vercel Environment Variables.' });
     }
 
-    const ai = new GoogleGenAI({ apiKey: apiKey });
-
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
-      contents: [
-        {
-          inlineData: {
-            mimeType: mimeType,
-            data: imageBase64
-          }
-        },
-        {
-          text: `Baca foto tabel atau catatan inventaris pakaian ini. Ekstrak setiap baris barang menjadi data terstruktur. Kembalikan HANYA JSON array valid tanpa markdown atau penjelasan, dengan format persis: [{"name":"nama barang","color":"warna","size":"ukuran","qty":1}].
+    const response = await fetch(`https://api.groq.com/openai/v1/chat/completions`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`
+      },
+      body: JSON.stringify({
+        model: 'llama-3.2-11b-vision-preview',
+        messages: [
+          {
+            role: 'user',
+            content: [
+              {
+                type: 'image_url',
+                image_url: {
+                  url: `data:${mimeType};base64,${imageBase64}`
+                }
+              },
+              {
+                type: 'text',
+                text: `Baca foto tabel atau catatan inventaris pakaian ini. Ekstrak setiap baris barang menjadi data terstruktur. Kembalikan HANYA JSON array valid tanpa markdown atau penjelasan, dengan format persis: [{"name":"nama barang","color":"warna","size":"ukuran","qty":1}].
 Aturan:
 - name = nama barang; jika tidak terlihat, gunakan "Barang Scan".
 - color = warna; jika tidak ada, gunakan "-".
@@ -34,18 +41,26 @@ Aturan:
 - Abaikan judul, header kolom, total, dan catatan yang bukan baris barang. Jangan mengarang baris yang tidak terlihat.
 - Jika foto berisi tabel dengan jumlah per ukuran pada kolom terpisah, buat satu objek untuk setiap kombinasi barang/warna/ukuran dan isi qty dengan angka yang sesuai.
 - Jangan masukkan teks lain di luar JSON array.`
-        }
-      ],
-      config: {
-        temperature: 0.1,
-        responseMimeType: 'application/json'
-      }
+              }
+            ]
+          }
+        ],
+        temperature: 0.1
+      })
     });
 
+    const result = await response.json();
+    if (!response.ok) {
+      throw new Error(result?.error?.message || `Gagal dari Groq API: ${response.status}`);
+    }
+
+    const textContent = result.choices[0].message.content;
+
+    // Mengemas respons agar sesuai dengan struktur pembacaan di index.html frontend Anda
     return res.status(200).json({
       candidates: [{
         content: {
-          parts: [{ text: response.text }]
+          parts: [{ text: textContent }]
         }
       }]
     });
